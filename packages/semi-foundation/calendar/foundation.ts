@@ -248,7 +248,27 @@ export default class CalendarFoundation<P = Record<string, any>, S = Record<stri
         if (!parsed.day) {
             parsed.day = [];
         }
+
         parsed.day = parsed.day.map(item => renderDailyEvent(item));
+        // 将 startPos & endPos 完全相同的事件编为一组
+        const sameTimeRangeGroup = parsed.day.reduce((acc, item) => {
+            const key = `${item.startPos}-${item.endPos}`;
+            if (!acc[key]) {
+                acc[key] = [];
+            }
+            acc[key].push(item);
+            return acc;
+        }, {});
+
+        // 计算每个 item 的 left 值， 
+        const eventCountMap = {};
+        parsed.day = parsed.day.map(item => {
+            const key = `${item.startPos}-${item.endPos}`;
+            let curCount = eventCountMap[key];
+            eventCountMap[key] = curCount === undefined ? 0 : ++curCount;
+            item.left = curCount !== 0 ? `${(curCount / sameTimeRangeGroup[key].length * 100)}%` : 0;
+            return item;
+        });
         return parsed;
     }
 
@@ -320,13 +340,13 @@ export default class CalendarFoundation<P = Record<string, any>, S = Record<stri
 
     convertMapToArray(weekMap: Map<string, EventObject[]>, weekStart: Date) {
         const eventArray = [];
+        const map = new Map();
         for (const entry of weekMap.entries()) {
             const [key, value] = entry;
-            const map = new Map();
             map.set(key, value);
-            const weekEvents = this._parseWeeklyEvents(map, weekStart);
-            eventArray.push(...weekEvents);
         }
+        const weekEvents = this._parseWeeklyEvents(map, weekStart);
+        eventArray.push(...weekEvents);
         return eventArray;
     }
 

@@ -12,6 +12,7 @@ export type tipFormatterBasicType = string | number | boolean | null;
 export interface SliderProps{
     defaultValue?: number | number[];
     disabled?: boolean;
+    showMarkLabel?: boolean;
     included?: boolean; // Whether to juxtapose. Allow dragging
     marks?: Marks; // Scale
     max?: number;
@@ -24,8 +25,10 @@ export interface SliderProps{
     onAfterChange?: (value: SliderProps['value']) => void; // triggered when mouse up and clicked
     onChange?: (value: SliderProps['value']) => void;
     onMouseUp?: (e: any) => void;
+    tooltipOnMark?: boolean;
     tooltipVisible?: boolean;
     style?: Record<string, any>;
+    showArrow?: boolean; 
     className?: string;
     showBoundary?: boolean;
     railStyle?: Record<string, any>;
@@ -33,7 +36,14 @@ export interface SliderProps{
     'aria-label'?: string;
     'aria-labelledby'?: string;
     'aria-valuetext'?: string;
-    getAriaValueText?: (value: number, index?: number) => string
+    getAriaValueText?: (value: number, index?: number) => string;
+    handleDot?: {
+        size?: string;
+        color?: string
+    } | ({
+        size?: string;
+        color?: string
+    }[])
 }
 
 export interface SliderState {
@@ -390,7 +400,12 @@ export default class SliderFoundation extends BaseFoundation<SliderAdapter> {
         })();
         
         if (Array.isArray(inputValue)) {
-            return [transWay(inputValue[0]), transWay(inputValue[1])];
+            const min = transWay(inputValue[0]);
+            const max = transWay(inputValue[1]);
+            if (min > max) {
+                return this.getState("focusPos") === "min" ? [max, max] : [min, min];
+            }
+            return [min, max];
         } else {
             return transWay(inputValue);
         }
@@ -540,7 +555,8 @@ export default class SliderFoundation extends BaseFoundation<SliderAdapter> {
     onHandleLeave = () => {
         // this._adapter.setEventDefault(e);
         const disabled = this._adapter.getState('disabled');
-        if (!disabled) {
+        const isDrag = this._adapter.getState('isDrag');
+        if (!disabled && !isDrag) {
             this._adapter.onHandleLeave();
         }
     };
@@ -675,7 +691,16 @@ export default class SliderFoundation extends BaseFoundation<SliderAdapter> {
         }
     }
 
+    _noTooltip = () => {
+        const { tipFormatter, tooltipVisible } = this.getProps();
+        return tipFormatter === null || tooltipVisible === false;
+    }
+
     onFocus = (e: any, handler: 'min'| 'max') => {
+        const noTooltip = this._noTooltip();
+        if (noTooltip) {
+            return;
+        }
         handlePrevent(e);
         const { target } = e;
         try {
@@ -692,6 +717,10 @@ export default class SliderFoundation extends BaseFoundation<SliderAdapter> {
     }
 
     onBlur = (e: any, handler: 'min'| 'max') => {
+        const noTooltip = this._noTooltip();
+        if (noTooltip) {
+            return;
+        }
         const { firstDotFocusVisible, secondDotFocusVisible } = this.getStates();
         if (handler === 'min') {
             firstDotFocusVisible && this._adapter.setStateVal('firstDotFocusVisible', false);

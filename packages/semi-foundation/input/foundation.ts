@@ -3,6 +3,7 @@ import { strings } from './constants';
 import { noop, set, isNumber, isString, isFunction } from 'lodash';
 
 import { ENTER_KEY } from './../utils/keyCode';
+import truncateValue from './util/truncateValue';
 
 export interface InputDefaultAdapter {
     notifyChange: noopFunction;
@@ -40,10 +41,6 @@ class InputFoundation extends BaseFoundation<InputAdapter> {
         super({ ...InputFoundation.inputDefaultAdapter, ...adapter });
     }
 
-    init() {
-        this._setInitValue();
-    }
-
     destroy() {
         if (this._timer) {
             clearTimeout(this._timer);
@@ -52,16 +49,6 @@ class InputFoundation extends BaseFoundation<InputAdapter> {
     }
 
     setDisable() {}
-
-    _setInitValue() {
-        const { defaultValue, value } = this.getProps();
-        let v = defaultValue;
-        if (this._isControlledComponent()) {
-            v = value;
-        }
-        this._adapter.setValue(v);
-    // this.checkAllowClear(v);
-    }
 
     setValue(value: any) {
         this._adapter.setValue(value);
@@ -126,6 +113,7 @@ class InputFoundation extends BaseFoundation<InputAdapter> {
                 return value;
             }
         }
+        return value;
     }
 
     /**
@@ -136,20 +124,7 @@ class InputFoundation extends BaseFoundation<InputAdapter> {
      */
     handleTruncateValue(value: any, maxLength: number) {
         const { getValueLength } = this._adapter.getProps();
-        if (isFunction(getValueLength)) {
-            let truncatedValue = '';
-            for (let i = 1, len = value.length; i <= len; i++) {
-                const currentValue = value.slice(0, i);
-                if (getValueLength(currentValue) > maxLength) {
-                    return truncatedValue;
-                } else {
-                    truncatedValue = currentValue;
-                }
-            }
-            return truncatedValue;
-        } else {
-            return value.slice(0, maxLength);
-        }
+        return truncateValue({ value, maxLength, getValueLength });
     }
 
     handleClear(e: any) {

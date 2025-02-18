@@ -7,6 +7,7 @@ $module: #{$prefix}-dropdown;
 .#{$module} {
     @include font-size-regular;
     &-wrapper {
+        overflow-y:auto; // prevent flow out of the radius limit area
         @include shadow-elevated;
         position: relative;
         z-index: $z-dropdown;
@@ -32,11 +33,12 @@ $module: #{$prefix}-dropdown;
         padding-bottom: $spacing-dropdown_title-paddingBottom;
         padding-left: $spacing-dropdown_title-paddingLeft;
         padding-right: $spacing-dropdown_title-paddingRight;
+        @include font-size-small;
+        cursor: default;
+        
         &-withTick {
             padding-left: $spacing-dropdown_title_withTick-paddingLeft;
         }
-        @include font-size-small;
-        cursor: default;
     }
     &-item {
         padding: $spacing-dropdown_item-paddingY $spacing-dropdown_item-paddingX;

@@ -8,28 +8,29 @@ import NavigationFoundation, { NavigationAdapter } from '@douyinfe/semi-foundati
 import { strings, cssClasses, numbers } from '@douyinfe/semi-foundation/navigation/constants';
 
 import SubNav, { SubNavProps } from './SubNav';
-import Item, { NavItemProps } from './Item';
+import Item, { NavItemProps, ItemKey } from './Item';
 import Footer, { NavFooterProps } from './Footer';
 import Header, { NavHeaderProps } from './Header';
 import NavContext from './nav-context';
 import LocaleConsumer from '../locale/localeConsumer';
 import '@douyinfe/semi-foundation/navigation/navigation.scss';
+import { getDefaultPropsFromGlobalConfig } from "../_utils";
+import { DropdownProps } from '../dropdown';
 
 export type { CollapseButtonProps } from './CollapseButton';
 export type { NavFooterProps } from './Footer';
 export type { NavHeaderProps } from './Header';
-export type { NavItemProps } from './Item';
+export type { NavItemProps, ItemKey } from './Item';
 export type { SubNavProps } from './SubNav';
 export type Mode = 'vertical' | 'horizontal';
 
 export interface OnSelectedData {
-    itemKey: React.ReactText;
+    itemKey: ItemKey;
     selectedKeys: React.ReactText[];
     selectedItems: (NavItemProps | SubNavProps)[];
     domEvent: React.MouseEvent;
     isOpen: boolean
 }
-
 export interface SubNavPropsWithItems extends SubNavProps {
     items?: (SubNavPropsWithItems | string)[]
 }
@@ -43,10 +44,11 @@ export type NavItems = (string | SubNavPropsWithItems | NavItemPropsWithItems)[]
 export interface NavProps extends BaseProps {
     bodyStyle?: React.CSSProperties;
     children?: React.ReactNode;
-    
+
     defaultIsCollapsed?: boolean;
     defaultOpenKeys?: React.ReactText[];
     defaultSelectedKeys?: React.ReactText[];
+    subDropdownProps?: DropdownProps;
     expandIcon?: React.ReactNode;
     footer?: React.ReactNode | NavFooterProps;
     header?: React.ReactNode | NavHeaderProps;
@@ -65,21 +67,21 @@ export interface NavProps extends BaseProps {
     tooltipHideDelay?: number;
     tooltipShowDelay?: number;
     getPopupContainer?: () => HTMLElement;
-    onClick?: (data: { itemKey?: React.ReactText; domEvent?: MouseEvent; isOpen?: boolean }) => void;
+    onClick?: (data: { itemKey?: ItemKey; domEvent?: MouseEvent; isOpen?: boolean }) => void;
     onCollapseChange?: (isCollapse: boolean) => void;
     onDeselect?: (data?: any) => void;
-    onOpenChange?: (data: { itemKey?: (string | number); openKeys?: (string | number)[]; domEvent?: MouseEvent; isOpen?: boolean }) => void;
+    onOpenChange?: (data: { itemKey?: ItemKey; openKeys?: ItemKey[]; domEvent?: MouseEvent; isOpen?: boolean }) => void;
     onSelect?: (data: OnSelectedData) => void;
-    renderWrapper?: ({ itemElement, isSubNav, isInSubNav, props }: { itemElement: ReactElement;isInSubNav: boolean; isSubNav: boolean; props: NavItemProps | SubNavProps }) => ReactNode
+    renderWrapper?: ({ itemElement, isSubNav, isInSubNav, props }: { itemElement: ReactElement; isInSubNav: boolean; isSubNav: boolean; props: NavItemProps | SubNavProps }) => ReactNode
 }
 
 export interface NavState {
     isCollapsed: boolean;
     // calc state
-    openKeys: (string | number)[];
+    openKeys: ItemKey[];
     items: any[];
-    itemKeysMap: { [itemKey: string]: (string | number)[] };
-    selectedKeys: (string | number)[]
+    itemKeysMap: { [itemKey: string]: ItemKey[] };
+    selectedKeys: ItemKey[]
 }
 
 function createAddKeysFn(context: Nav, keyName: string | number) {
@@ -154,8 +156,8 @@ class Nav extends BaseComponent<NavProps, NavState> {
         limitIndent: PropTypes.bool,
         getPopupContainer: PropTypes.func,
     };
-
-    static defaultProps = {
+    static __SemiComponentName__ = "Navigation";
+    static defaultProps = getDefaultPropsFromGlobalConfig(Nav.__SemiComponentName__, {
         subNavCloseDelay: numbers.DEFAULT_SUBNAV_CLOSE_DELAY,
         subNavOpenDelay: numbers.DEFAULT_SUBNAV_OPEN_DELAY,
         tooltipHideDelay: numbers.DEFAULT_TOOLTIP_HIDE_DELAY,
@@ -173,9 +175,10 @@ class Nav extends BaseComponent<NavProps, NavState> {
         // defaultOpenKeys: [],
         // defaultSelectedKeys: [],
         // items: [],
-    };
+    });
 
     itemsChanged: boolean;
+    foundation: NavigationFoundation;
     constructor(props: NavProps) {
         super(props);
         this.foundation = new NavigationFoundation(this.adapter);
@@ -214,24 +217,19 @@ class Nav extends BaseComponent<NavProps, NavState> {
         // override BaseComponent
     }
 
-    componentDidUpdate(prevProps: NavProps, prevState: NavState) {
+    componentDidUpdate(prevProps: NavProps) {
         if (prevProps.items !== this.props.items || prevProps.children !== this.props.children) {
             this.foundation.init();
         } else {
             this.foundation.handleItemsChange(false);
-            const { selectedKeys } = this.state;
-
             if (this.props.selectedKeys && !isEqual(prevProps.selectedKeys, this.props.selectedKeys)) {
                 this.adapter.updateSelectedKeys(this.props.selectedKeys);
+                const willOpenKeys = this.foundation.getWillOpenKeys(this.state.itemKeysMap);
+                this.adapter.updateOpenKeys(willOpenKeys);
             }
 
             if (this.props.openKeys && !isEqual(prevProps.openKeys, this.props.openKeys)) {
                 this.adapter.updateOpenKeys(this.props.openKeys);
-            }
-
-            if (!isEqual(selectedKeys, prevState.selectedKeys)) {
-                const parentSelectKeys = this.foundation.selectLevelZeroParentKeys(null, ...selectedKeys);
-                this.adapter.addSelectedKeys(...parentSelectKeys);
             }
         }
     }
@@ -247,7 +245,17 @@ class Nav extends BaseComponent<NavProps, NavState> {
             setItemKeysMap: itemKeysMap => this.setState({ itemKeysMap: { ...itemKeysMap } }),
             addSelectedKeys: createAddKeysFn(this, 'selectedKeys'),
             removeSelectedKeys: createRemoveKeysFn(this, 'selectedKeys'),
-            updateSelectedKeys: selectedKeys => this.setState({ selectedKeys: [...selectedKeys] }),
+            /**
+             * when `includeParentKeys` is `true`, select a nested nav item will select parent nav sub
+             */
+            updateSelectedKeys: (selectedKeys: (string | number)[], includeParentKeys = true) => {
+                let willUpdateSelectedKeys = selectedKeys;
+                if (includeParentKeys) {
+                    const parentSelectKeys = this.foundation.selectLevelZeroParentKeys(null, selectedKeys);
+                    willUpdateSelectedKeys = Array.from(new Set(selectedKeys.concat(parentSelectKeys)));
+                }
+                this.setState({ selectedKeys: willUpdateSelectedKeys });
+            },
             updateOpenKeys: openKeys => this.setState({ openKeys: [...openKeys] }),
             addOpenKeys: createAddKeysFn(this, 'openKeys'),
             removeOpenKeys: createRemoveKeysFn(this, 'openKeys'),
@@ -264,7 +272,7 @@ class Nav extends BaseComponent<NavProps, NavState> {
      * @returns {JSX.Element}
      */
     renderItems(items: (SubNavPropsWithItems | NavItemPropsWithItems)[] = [], level = 0) {
-        const { expandIcon } = this.props;
+        const { expandIcon, subDropdownProps } = this.props;
         const finalDom = (
             <>
                 {items.map((item, idx) => {
@@ -275,6 +283,7 @@ class Nav extends BaseComponent<NavProps, NavState> {
                                 {...item as SubNavPropsWithItems}
                                 level={level}
                                 expandIcon={expandIcon}
+                                subDropdownProps={subDropdownProps}
                             >
                                 {this.renderItems(item.items as (SubNavPropsWithItems | NavItemPropsWithItems)[], level + 1)}
                             </SubNav>

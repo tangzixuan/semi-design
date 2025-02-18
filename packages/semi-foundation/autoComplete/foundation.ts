@@ -29,6 +29,7 @@ export interface AutoCompleteAdapter<P = Record<string, any>, S = Record<string,
     updateInputValue: (inputValue: string | number) => void;
     toggleListVisible: (isShow: boolean) => void;
     updateOptionList: (optionList: Array<StateOptionItem>) => void;
+    updateScrollTop: (index: number) => void;
     updateSelection: (selection: Map<any, any>) => void;
     notifySearch: (inputValue: string) => void;
     notifyChange: (value: string | number) => void;
@@ -235,7 +236,7 @@ class AutoCompleteFoundation<P = Record<string, any>, S = Record<string, any>> e
 
         const options = this._generateList(data);
         // Get the option whose value match from options
-        let selectedOption: StateOptionItem | Array<StateOptionItem> = options.filter(option => renderSelectedItem(option) === selectedValue);
+        let selectedOption: StateOptionItem | Array<StateOptionItem> = options.length ? options.filter(option => renderSelectedItem(option) === selectedValue) : [];
         const canMatchInData = selectedOption.length;
 
         const selectedOptionIndex = options.findIndex(option => renderSelectedItem(option) === selectedValue);
@@ -262,11 +263,13 @@ class AutoCompleteFoundation<P = Record<string, any>, S = Record<string, any>> e
 
         let { data, defaultActiveFirstOption } = this.getProps();
 
-        let renderSelectedItem = this._getRenderSelectedItem();
+        let selectedOptionIndex = -1;
 
-        const options = this._generateList(data);
-
-        const selectedOptionIndex = options.findIndex(option => renderSelectedItem(option) === searchValue);
+        if (searchValue) {
+            let renderSelectedItem = this._getRenderSelectedItem();
+            const options = this._generateList(data);
+            selectedOptionIndex = options.findIndex(option => renderSelectedItem(option) === searchValue);
+        }
 
         if (selectedOptionIndex === -1 && defaultActiveFirstOption) {
             if (focusIndex !== 0) {
@@ -288,7 +291,9 @@ class AutoCompleteFoundation<P = Record<string, any>, S = Record<string, any>> e
         let { renderSelectedItem } = this.getProps();
 
         if (typeof renderSelectedItem === 'undefined') {
-            renderSelectedItem = (option: any) => option.value;
+            renderSelectedItem = (option: any) => {
+                return option?.value;
+            };
         } else if (renderSelectedItem && typeof renderSelectedItem === 'function') {
             // do nothing
         }
@@ -383,6 +388,7 @@ class AutoCompleteFoundation<P = Record<string, any>, S = Record<string, any>> e
             index = nearestActiveOption;
         }
         this._adapter.updateFocusIndex(index);
+        this._adapter.updateScrollTop(index);
     }
 
     _handleArrowKeyDown(offset: number): void {
@@ -424,12 +430,7 @@ class AutoCompleteFoundation<P = Record<string, any>, S = Record<string, any>> e
         // only need persist on react adapter
         // https://reactjs.org/docs/legacy-event-pooling.html
         this._persistEvent(e);
-        // In order to handle the problem of losing onClick binding when clicking on the padding area, the onBlur event is triggered first to cause the react view to be updated
-        // internal-issues:1231
-        setTimeout(() => {
-            this._adapter.notifyBlur(e);
-            // this.closeDropdown();
-        }, 100);
+        this._adapter.notifyBlur(e);
     }
 }
 

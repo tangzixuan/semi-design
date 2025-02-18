@@ -22,6 +22,13 @@ const appLocale = {
         'footer.component': 'React Component Library',
         'footer.dsm': 'Theme & DSM',
 
+        //new footer
+        "footer.design": "Design System",
+        "footer.getInfo": "Get Semi News",
+        "footer.getInfo.lark": "Semi Lark Group",
+        "footer.getInfo.redBook": "xiaohongshu",
+        "footer.friends": "Friends",
+
         // search
         'search.belong.component': 'Component',
         'search.belong.material': 'Material',
@@ -72,6 +79,8 @@ const appLocale = {
         // Icon list
         'icon.list.tab.fill': 'Fill Icons',
         'icon.list.tab.stroked': 'Stroked Icons',
+        'icon.list.tab.lab': 'Colorful Icons',
+
 
         // new Home
         // page one
@@ -93,6 +102,8 @@ const appLocale = {
         "feature_live_code_description": "LiveCode allows you to instantly demonstrate your UI components using an online code editor",
         "feature_test": "Stable quality assurance",
         "feature_test_description": "Semi uses a variety of methods such as unit testing to ensure the stability and quality of components, and the code coverage rate reaches 90%",
+        "adapter_webComponents": "Easily compatible with web components",
+        "adapter_webComponents_description": "Provides a complete adaptation solution. All components can work normally in shadow DOM, which is more suitable for building SDKs, browser plugins and other scenarios that require DOM isolation.",
         "feature_SSR": "SSR support",
         "feature_SSR_description": "Semi component library supports SSR scenarios and can be used in frameworks like Next.js、Gatsby、Remix",
         "feature_D2C": "Design to code",
@@ -127,6 +138,7 @@ const appLocale = {
         // page seven: Web application
         "application_title": "Build State of the Art Apps",
         "application_subtitle": "Modern design vibes compile with next-gen OS and browsers",
+        "coze": "Coze is a one-stop AI chat bot development platform. Regardless of your programming skills, Coze allows you to swiftly create a wide range of chat bots powered by AI, capable of handling everything from simple questions to complex conversations. Furthermore, you can publish your bots to various applications, fostering dynamic interaction with users on those applications.",
         "feishu_program": "Feishu project is a single product released by Feishu in the spring of 2022. It supports large teams to disassemble and visualize complex project processes, visually present collaboration standards, and allow members to clarify their responsibilities and easily grasp upstream and downstream information.",
         "douyin_creator": "Douyin Creation Service Platform is an exclusive service platform for Douyin creators. It supports two login methods for users as creators and management agencies, and provides a variety of functions to help users operate efficiently.",
         "anyweb": "Anyweb is a free website builder that makes it easy to create professional websites. With no programming skills required, you can set up custom websites quickly and easily with the Anyweb drag-and-drop editor.",
@@ -141,6 +153,8 @@ const appLocale = {
         "content_theme_info": "Compatible with diverse brand languages ​​and product forms to avoid meaningless re-creation",
         "content_d2c": "The evolution of Semi D2C design to code",
         "content_d2c_info": "Connect designers and developers with advanced tools",
+        "content_d2c_openday": "ByteDance OpenDay Tech Talk",
+        "content_d2c_info_openday": "A Deep Dive into Design to Code",
         "content_test": "How We Test Semi Design Component",
         "content_test_info": "Comprehensively use UnitTest, E2E Test, and Visual Test to ensure the stability of the component library",
 
@@ -199,7 +213,7 @@ const appLocale = {
         "design_resources_are_obviously_helpful_to_improve_efficiency_": "Design assets can obviously help improve efficiency.",
         "douyin_certification": "Douyin certification",
         "douyin_creative_service_theme": "Douyin Creator Theme",
-        "douyin_little_assistant": "Douyin Little Assistant",
+        "douyin_assistant": "Douyin Assistant",
         "easy_to_use__beautiful_style_": "Semi Design is easy-to-use and stylish.",
         // "excellent_design_of_mid_background_enterprise_applications": "Excellent design of mid-background enterprise applications",
         // "experience_monitoring": "Experience Monitoring",
@@ -236,7 +250,7 @@ const appLocale = {
         "uniform_style_and_high_fidelity_prototype_facilitate_communication_with_front_en_95d0c0ccece05c104b98ac0dae9fb53b": "It’s fluent to communicate with front-end devs because of the uniform style.",
         "user": "User",
         "video_compression_algorithm": "Video compression algorithm",
-        "volcano_little_helper": "Volcano Little",
+        "ulike_assistant": "Ulike Assistant",
         "theme_store": "Theme Store",
         "semi_dsm": "Managing Themes"
     },

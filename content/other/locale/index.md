@@ -1,6 +1,6 @@
 ---
 localeCode: zh-CN
-order: 75
+order: 89
 category: 其他
 title:  LocaleProvider 多语言
 icon: doc-i18n
@@ -23,9 +23,11 @@ brief: 国际化组件，为 Semi 组件提供多语言支持
 | v2.15.0     | 意大利语: it、法语：fr、德语：de   |
 | v2.21.0     | 罗马尼亚语: ro   |
 | v2.29.0     | 瑞典语: sv_SE、波兰语: pl_PL 、荷兰语: nl_NL |
-## 已支持组件
 
-> DatePicker、TimePicker、Modal、Pagination、Select、Table、Cascader、Calendar、TreeSelect、List、Typography、Transfer、Nav、Upload、Form、Navigation、Image
+## 已支持组件  
+目前有以下组件存在内置默认文本，均已实现国际化多语言适配  
+Calendar、Cascader、Chat、DatePicker、Form、Image、List、List、Modal、Navigation、Nav、Pagination、Popconfirm、Select、Table、TimePicker、Transfer、Tree、TreeSelect、Typography、Upload
+
 
 ## 使用
 
@@ -376,7 +378,7 @@ class I18nDemo extends React.Component {
                     <Typography.Paragraph copyable>Click to copy text.</Typography.Paragraph>
                     <h5>Typography - Collapsible</h5>
                     <Typography.Paragraph ellipsis={{ rows: 3, expandable: true, collapsible: true }} style={{ width: 300 }}>
-                        支持展开和折叠：Semi Design 是由互娱社区前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
+                        支持展开和折叠：Semi Design 是由抖音前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
                     </Typography.Paragraph>
                     <h5>Transfer</h5>
                     <Transfer

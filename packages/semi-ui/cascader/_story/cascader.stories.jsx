@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import CustomTrigger from './CustomTrigger';
-import { IconChevronDown, IconClose } from '@douyinfe/semi-icons';
+import { IconChevronDown, IconClose, IconGift, IconTreeTriangleRight  } from '@douyinfe/semi-icons';
 import { Button, Typography, Toast, Cascader, Checkbox, Input, Tag, TagInput } from '../../index';
 
 const { Text } = Typography;
@@ -1626,7 +1626,7 @@ export const DynamicTreeData = () => {
 
 
 export const SuperLongList = () => {
-    let treeData = new Array(100).fill().map(() => ({ label: '浙江省', value: 'zhejiang' }));
+    let treeData = new Array(100).fill().map((item, index) => ({ label: `浙江省${index}`, value: `zhejiang${index}` }));
     treeData.push({ label: '到底啦', value: 'bottom' })
     return (
         <Cascader
@@ -1791,7 +1791,7 @@ export const filterRender = () => {
           onClick={onCheck}
       >
         <Checkbox
-            onClick={onCheck}
+            onChange={onCheck}
             indeterminate={checkStatus.halfChecked}
             checked={checkStatus.checked}
             style={{ marginRight: 8 }}
@@ -2124,3 +2124,376 @@ export const DisabledAndPlusN = () => {
     </> 
   )
 }
+
+export const VirtualizeInSearch = () => {
+  const treeData = useMemo(() => (
+      ['通用', '场景'].map((label, m) => ({
+          label: label,
+          value: m,
+          children: new Array(100).fill(0).map((item, n)=> ({
+              value: `${m}-${n}`,
+              label: `${m}-${n} 第二级`,
+              children: new Array(20).fill(0).map((item, o)=> ({
+                  value: `${m}-${n}-${o}`,
+                  label: `${m}-${n}-${o} 第三级详细内容`,
+              })),
+          }))
+      }))
+  ), []);
+  
+  let virtualize = {
+      // 高度为面板默认高度为 180px 减去上下padding 2 * 8px
+      height: 172,
+      width: 320,
+      itemSize: 36, 
+  };
+
+  const filterRender = useCallback((props) => {
+      const { data, onCheck, checkStatus, className } = props;
+      return (
+          <div 
+              key={data.value}
+              className={className}
+              style={{ justifyContent: 'start', padding: '8px 16px 8px 12px', boxSizing: 'border-box' }}
+          >
+              <Checkbox
+                  onChange={onCheck}
+                  indeterminate={checkStatus.halfChecked}
+                  checked={checkStatus.checked}
+                  style={{ marginRight: 8 }}
+              />
+              <Typography.Text
+                  ellipsis={{ showTooltip: { opts: { style: { wordBreak: 'break-all' } } } }}
+                  style={{ maxWidth: 260 }}
+              >
+                  {data.map(item => item.label).join(' | ')}
+              </Typography.Text>
+          </div>
+      );
+  }, []);
+   
+  return (
+      <Cascader
+          multiple
+          filterTreeNode
+          style={{ width: 320 }}
+          treeData={treeData}
+          placeholder="输入 通用 or 场景 进行搜索"
+          virtualizeInSearch={virtualize}
+          filterRender={filterRender}
+      />
+  );
+};
+
+function generateOptions(arr, level, frontKey) {
+  const realLevel = level ?? 0;
+  const notLeaf = realLevel !== arr.length - 1;
+  const realFrontKey = frontKey ? `${frontKey}-` : '';
+  return new Array(arr[realLevel])
+    .fill(0)
+    .map((_item, index) => {
+      const data = {
+        label: `label-${realFrontKey}${index}`,
+        value: `value-${realFrontKey}${index}`,
+      };
+      if (notLeaf) {
+        data.children = generateOptions(
+          arr,
+          realLevel + 1,
+          `${realFrontKey}${index}`,
+        );
+      }
+      return data;
+    });
+}
+
+export const LeafOnlyPF = () => {
+  const treeData = useMemo(() => {
+    return generateOptions([4, 10, 10, 10]);
+  }, []);
+
+  return (
+    <Cascader
+      multiple
+      leafOnly
+      maxTagCount={4}
+      treeData={treeData}
+      style={{ width: 200 }}
+    />
+  );
+};
+
+export const SearchPF = () => {
+  const treeData = useMemo(() => {
+    return generateOptions([4, 10, 10, 10]);
+  }, []);
+
+  return (
+    <Cascader
+      filterTreeNode
+      multiple
+      leafOnly
+      maxTagCount={4}
+      treeData={treeData}
+      style={{ width: 200 }}
+    />
+  );
+};
+
+export const ControlledPF = () => {
+  const [cValue, setCValue] = useState([]);
+  const onCascaderChange = useCallback(value => {
+    // console.log('cValue', value);
+    setCValue(value);
+  }, []);
+
+  const treeData = useMemo(() => {
+    return generateOptions([4, 10, 10, 10, 10]);
+  }, []);
+
+  return (
+    <Cascader
+      value={cValue}
+      onChange={onCascaderChange}
+      filterTreeNode
+      leafOnly
+      multiple
+      maxTagCount={4}
+      treeData={treeData}
+      style={{ width: 200 }}
+    />
+  )
+}
+
+export const AutoMergeFalse = () => {
+  const [value, setValue] = useState([]);
+  const onChange = value => {
+      console.log(value);
+      setValue(value);
+  };
+  const treeData = [
+      {
+          label: '浙江省',
+          value: 'zhejiang',
+          children: [
+              {
+                  label: '杭州市',
+                  value: 'hangzhou',
+                  children: [
+                      {
+                          label: '西湖区',
+                          value: 'xihu',
+                      },
+                      {
+                          label: '萧山区',
+                          value: 'xiaoshan',
+                      },
+                      {
+                          label: '临安区',
+                          value: 'linan',
+                      },
+                  ],
+              },
+              {
+                  label: '宁波市',
+                  value: 'ningbo',
+                  children: [
+                      {
+                          label: '海曙区',
+                          value: 'haishu',
+                      },
+                      {
+                          label: '江北区',
+                          value: 'jiangbei',
+                      }
+                  ]
+              },
+          ],
+      }
+  ];
+  return (
+      <Cascader
+          style={{ width: 300 }}
+          treeData={treeData}
+          placeholder="autoMergeValue 为 false"
+          value={value}
+          multiple
+          autoMergeValue={false}
+          onChange={e => onChange(e)}
+      />
+  );
+}
+
+export const NumberValue = () => {
+  const [value, setValue] = useState([[ 39 ]]);
+  const onChange = useCallback((val) => {
+    console.log('onChange', val);
+    setValue(val);
+  }, []);
+  const treeData = useMemo(() => [
+      {
+          "label": "奖励",
+          "value": 2,
+          "children": [
+              {
+                  "label": "短期项目激励",
+                  "value": 3
+              },
+              {
+                  "label": "专项激励",
+                  "value": 8
+              }
+          ]
+      },
+      {
+          "label": "补结",
+          "value": 39,
+          "children": []
+      },
+      {
+          "label": "补扣",
+          "value": 40,
+          "children": [
+              {
+                  "label": "A",
+                  "value": 100
+              }
+          ]
+      }
+  ]);
+
+  return (
+      <Cascader
+          multiple
+          onChange={onChange}
+          value={value}
+          style={{ width: 300 }}
+          treeData={treeData}
+          placeholder="请选择所在地区"
+      />
+  );
+};
+
+export const SearchInTopSlot = () => {
+  const cascaderRef = useRef();
+
+  const handleInputChange = useCallback((value) => {
+    cascaderRef.current.search(value);
+  }, [cascaderRef]);
+
+  const topSlot = useMemo(() => {
+    return <Input prefix="搜索" onChange={handleInputChange} style={{width: '100%'}}/>
+  }, [handleInputChange]);
+
+  return (
+      <Cascader
+          filterTreeNode
+          searchPosition={"custom"}
+          ref={cascaderRef}
+          style={{ width: 300 }}
+          treeData={treeData2}
+          topSlot={topSlot}
+          placeholder="请选择所在地区"
+      />
+  );
+}
+
+export const suffix = () => {
+  return (<Cascader
+    suffix={<IconGift />}
+    style={{ width: 300 }}
+    treeData={treeData1}
+    placeholder="请选择所在地区"
+  />);
+}
+
+export const EmptyContent = () => {
+  return (
+  <>
+    <Cascader
+      emptyContent={null}
+      style={{ width: 400 }}
+      treeData={[]}
+      placeholder="点击 trigger 查看 emptyContent 为 null 效果 "
+      filterTreeNode
+    />
+    <br /><br />
+    <Cascader
+      emptyContent={null}
+      style={{ width: 400 }}
+      treeData={treeData1}
+      placeholder="输入 v 查看搜索状态下 emptyContent 为 null 效果"
+      filterTreeNode
+    />
+    <br />
+  </>)
+}
+
+export const CustomExpandIcon = () => {
+  const expandIcon = <IconTreeTriangleRight style={{ color: 'var(--semi-color-text-1)'}} />
+  return (
+    <>
+      <Cascader
+        expandIcon={expandIcon}
+        style={{ width: 400 }}
+        treeData={treeData2}
+        placeholder="custom expandIcon"
+        filterTreeNode
+      />
+    </>
+  );
+}
+
+export const UnRelated = () => {
+  const [value, setValue] = useState([
+    [ "yazhou" ],
+    [ "beimeizhou", "meiguo"],
+  ]);
+
+  const onChange = useCallback((value) => {
+    setValue(value);
+  }, [])
+
+  const onSelect = useCallback((value) => {
+    console.log('onSelect', value);
+  }, [])
+
+  return (
+    <Cascader
+      style={{ width: 400 }}
+      treeData={treeData2}
+      value={value}
+      filterTreeNode
+      multiple
+      checkRelation='unRelated'
+      onChange={onChange}
+      onSelect={onSelect}
+    />
+  )
+}
+
+export const PlaceHolderChange = () => {
+  const [p, setP] = useState('please select');
+
+  const onButtonClick = useCallback(() => {
+    const random = Math.floor(Math.random() * 100 % 10);
+    setP(`please select ${random}`)
+  }, []);
+  
+  return (
+    <div>
+      <Button onClick={onButtonClick}>Click me change placeholder</Button>
+      <br /><br />
+      <Cascader
+        style={{ width: 300 }}
+        treeData={treeData2}
+        // placeholder={p}
+        searchPlaceholder={p}
+        filterTreeNode
+        motion={false}
+        multiple
+        showClear
+      />
+    </div>
+  )
+} 

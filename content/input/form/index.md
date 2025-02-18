@@ -1,6 +1,6 @@
 ---
 localeCode: zh-CN
-order: 24
+order: 35
 category: 输入类
 title:  Form 表单
 icon: doc-form
@@ -185,256 +185,249 @@ import { Form } from '@douyinfe/semi-ui';
 
 ```jsx live=true dir="column"
 import React from 'react';
-import { Form, Col, Row, Button } from '@douyinfe/semi-ui';
+import { Form, Col, Row, Button, Space } from '@douyinfe/semi-ui';
 import { IconUpload } from '@douyinfe/semi-icons';
 
-class BasicDemoWithInit extends React.Component {
-    constructor() {
-        super();
-        this.state = {
-            initValues: {
-                name: 'semi',
-                business: ['ulikeCam'],
-                role: 'ued',
-                switch: true,
-                files: [
-                    {
-                        uid: '1',
-                        name: 'vigo.png',
-                        status: 'success',
-                        size: '130KB',
-                        preview: true,
-                        url: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/ptlz_zlp/ljhwZthlaukjlkulzlp/root-web-sites/vigo.png'
-                    },
-                    {
-                        uid: '2',
-                        name: 'resso.jpeg',
-                        status: 'validateFail',
-                        size: '222KB',
-                        percent: 50,
-                        preview: true,
-                        fileInstance: new File([new ArrayBuffer(2048)], 'resso.jpeg', { type: 'image/jpeg' }),
-                        url: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/ptlz_zlp/ljhwZthlaukjlkulzlp/root-web-sites/Resso.png'
-                    },
-                    {
-                        uid: '3',
-                        name: 'dy.jpeg',
-                        status: 'uploading',
-                        size: '222KB',
-                        percent: 50,
-                        preview: true,
-                        fileInstance: new File([new ArrayBuffer(2048)], 'dy.jpeg', { type: 'image/jpeg' }),
-                        url: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/ptlz_zlp/ljhwZthlaukjlkulzlp/root-web-sites/dy.png'
-                    }
-                ]
-            }
-        };
-    }
-
-    render() {
-        const { Section, Input, InputNumber, AutoComplete, Select, TreeSelect, Cascader, DatePicker, TimePicker, TextArea, CheckboxGroup, Checkbox, RadioGroup, Radio, Slider, Rating, Switch, TagInput } = Form;
-        const { initValues } = this.state;
-        const plainOptions = ['A', 'B', 'C'];
-        const style = { width: '90%' };
-        const treeData = [
+() => {
+    const initValues = {
+        name: 'semi',
+        business: ['ulikeCam'],
+        role: 'ued',
+        switch: true,
+        files: [
             {
-                label: '亚洲',
-                value: 'Asia',
-                key: '0',
-                children: [
-                    {
-                        label: '中国',
-                        value: 'China',
-                        key: '0-0',
-                        children: [
-                            {
-                                label: '北京',
-                                value: 'Beijing',
-                                key: '0-0-0',
-                            },
-                            {
-                                label: '上海',
-                                value: 'Shanghai',
-                                key: '0-0-1',
-                            },
-                        ],
-                    },
-                ],
+                uid: '1',
+                name: 'vigo.png',
+                status: 'success',
+                size: '130KB',
+                preview: true,
+                url: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/ptlz_zlp/ljhwZthlaukjlkulzlp/root-web-sites/vigo.png'
             },
             {
-                label: '北美洲',
-                value: 'North America',
-                key: '1',
+                uid: '2',
+                name: 'resso.jpeg',
+                status: 'validateFail',
+                size: '222KB',
+                percent: 50,
+                preview: true,
+                fileInstance: new File([new ArrayBuffer(2048)], 'resso.jpeg', { type: 'image/jpeg' }),
+                url: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/ptlz_zlp/ljhwZthlaukjlkulzlp/root-web-sites/Resso.png'
+            },
+            {
+                uid: '3',
+                name: 'douyin.jpeg',
+                status: 'uploading',
+                size: '222KB',
+                percent: 50,
+                preview: true,
+                fileInstance: new File([new ArrayBuffer(2048)], 'dy.jpeg', { type: 'image/jpeg' }),
+                url: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/ptlz_zlp/ljhwZthlaukjlkulzlp/root-web-sites/dy.png'
             }
-        ];
+        ]
+    };
+    const { Section, Input, InputNumber, AutoComplete, Select, TreeSelect, Cascader, DatePicker, TimePicker, TextArea, CheckboxGroup, Checkbox, RadioGroup, Radio, Slider, Rating, Switch, TagInput } = Form;
+    const plainOptions = ['A', 'B', 'C'];
+    const style = { width: '90%' };
+    const treeData = [
+        {
+            label: '亚洲',
+            value: 'Asia',
+            key: '0',
+            children: [
+                {
+                    label: '中国',
+                    value: 'China',
+                    key: '0-0',
+                    children: [
+                        {
+                            label: '北京',
+                            value: 'Beijing',
+                            key: '0-0-0',
+                        },
+                        {
+                            label: '上海',
+                            value: 'Shanghai',
+                            key: '0-0-1',
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            label: '北美洲',
+            value: 'North America',
+            key: '1',
+        }
+    ];
 
-        return (
-            <Form
-                initValues={initValues}
-                style={{ padding: 10, width: '100%' }}
-                onValueChange={(v)=>console.log(v)}
-            >
-                <Section text={'基本信息'}>
-                    <Row>
-                        <Col span={12}>
-                            <Input
-                                field="name"
-                                label="名称（Input）"
-                                initValue={'mikeya'}
-                                style={style}
-                                trigger='blur'
-                            />
-                        </Col>
-                        <Col span={12}>
-                            <DatePicker field="date" label='日期（DatePicker）' style={style} initValue={new Date()} placeholder='请选择生效日期' />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={12}>
-                            <Select field="role" style={style} label='角色（Select）' placeholder='请选择你的角色'>
-                                <Select.Option value="operate">运营</Select.Option>
-                                <Select.Option value="rd">开发</Select.Option>
-                                <Select.Option value="pm">产品</Select.Option>
-                                <Select.Option value="ued">设计</Select.Option>
-                            </Select>
-                        </Col>
-                        <Col span={12}>
-                            <Select
-                                field="business"
-                                multiple
-                                style={style}
-                                placeholder='请选择业务线'
-                                label="业务线（多选Select）"
-                                extraText={
-                                    <div style={{
-                                        color: 'rgba(var(--semi-blue-5), 1)',
-                                        fontSize: 14,
-                                        userSelect: 'none',
-                                        cursor: 'pointer'
-                                    }}>
-                                        没有找到合适的业务线？
-                                    </div>
-                                }
-                            >
-                                <Select.Option value="abc">Semi</Select.Option>
-                                <Select.Option value="ulikeCam">轻颜相机</Select.Option>
-                                <Select.Option value="toutiao">今日头条</Select.Option>
-                            </Select>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={12}>
-                            <Form.Cascader
-                                placeholder="请选择所在地区"
-                                treeData={treeData}
-                                field='area'
-                                label='地区（Cascader）'
-                                style={style}
-                            >
-                            </Form.Cascader>
-                        </Col>
-                        <Col span={12}>
-                            <Form.TreeSelect
-                                field="tree"
-                                style={style}
-                                label='节点（TreeSelect）'
-                                placeholder='请选择服务节点'
-                                treeData={treeData}
-                                filterTreeNode
-                            >
-                            </Form.TreeSelect>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={12}>
-                            <TagInput 
-                                field="product"
-                                label='产品（TagInput）'
-                                initValue={['abc', 'ulikeCam']}
-                                placeholder='请输入产品'
-                                style={style}
-                            />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={24}>
-                            <Form.Upload
-                                field='files'
-                                label='证明文件（Upload）'
-                                action='//semi.design/api/upload'
-                            >
-                                <Button icon={<IconUpload />} theme="light">
-                                    点击上传
-                                </Button>
-                            </Form.Upload>
-                        </Col>
-                    </Row>
-                </Section>
-                <Section text='资源详情'>
-                    <Row>
-                        <Col span={12}>
-                            <TextArea
-                                style={{ ...style, height: 120 }}
-                                field='description'
-                                label='申请理由（TextArea）'
-                                placeholder='请填写申请资源理由'
-                            />
-                        </Col>
-                        <Col span={12}>
-                            <CheckboxGroup
-                                field="type"
-                                direction='horizontal'
-                                label='申请类型（CheckboxGroup）'
-                                initValue={['user', 'admin']}
-                                rules={[
-                                    { required: true }
-                                ]}
-                            >
-                                <Checkbox value="admin">admin</Checkbox>
-                                <Checkbox value="user">user</Checkbox>
-                                <Checkbox value="guest">guest</Checkbox>
-                                <Checkbox value="root">root</Checkbox>
-                            </CheckboxGroup>
-                            <RadioGroup field="isMonopolize" label='是否独占资源（Radio）' rules={[
-                                { type: 'boolean' },
-                                { required: true, message: '必须选择是否独占 ' }
-                            ]}>
-                                <Radio value={1}>是</Radio>
-                                <Radio value={0}>否</Radio>
-                            </RadioGroup>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={12}>
-                            <TimePicker field="time" label='截止时刻（TimePicker）' style={{ width: '90%' }}/>
-                        </Col>
-                        <Col span={12}>
-                            <InputNumber field='number' label='申请数量（InputNumber）' initValue={20} style={style}/>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={12}>
-                            <Slider field="range" label='资源使用报警阈值(%)（Slider）' initValue={10} style={{ width: '90%' }}/>
-                        </Col>
-                        <Col span={12}>
-                            <Switch field='switch' label='开关(Switch)'/>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={12}>
-                            <Rating field="rating" label='满意度(Rating)' initValue={2} style={{ width: '90%' }}/>
-                        </Col>
-                    </Row>
-                </Section>
-                <Checkbox value="false" field="agree" noLabel={true}>
-                    我已阅读并清楚相关规定（Checkbox）
-                </Checkbox>
+    return (
+        <Form
+            initValues={initValues}
+            style={{ padding: 10, width: '100%' }}
+            onValueChange={(v)=>console.log(v)}
+        >
+            <Section text={'基本信息'}>
+                <Row>
+                    <Col span={12}>
+                        <Input
+                            field="name"
+                            label="名称（Input）"
+                            initValue={'mikeya'}
+                            style={style}
+                            trigger='blur'
+                        />
+                    </Col>
+                    <Col span={12}>
+                        <DatePicker field="date" label='日期（DatePicker）' style={style} initValue={new Date()} placeholder='请选择生效日期' />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={12}>
+                        <Select field="role" style={style} label='角色（Select）' placeholder='请选择你的角色'>
+                            <Select.Option value="operate">运营</Select.Option>
+                            <Select.Option value="rd">开发</Select.Option>
+                            <Select.Option value="pm">产品</Select.Option>
+                            <Select.Option value="ued">设计</Select.Option>
+                        </Select>
+                    </Col>
+                    <Col span={12}>
+                        <Select
+                            field="business"
+                            multiple
+                            style={style}
+                            placeholder='请选择业务线'
+                            label="业务线（多选Select）"
+                            extraText={
+                                <div style={{
+                                    color: 'rgba(var(--semi-blue-5), 1)',
+                                    fontSize: 14,
+                                    userSelect: 'none',
+                                    cursor: 'pointer'
+                                }}>
+                                    没有找到合适的业务线？
+                                </div>
+                            }
+                        >
+                            <Select.Option value="abc">Semi</Select.Option>
+                            <Select.Option value="ulikeCam">轻颜相机</Select.Option>
+                            <Select.Option value="toutiao">今日头条</Select.Option>
+                        </Select>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={12}>
+                        <Form.Cascader
+                            placeholder="请选择所在地区"
+                            treeData={treeData}
+                            field='area'
+                            label='地区（Cascader）'
+                            style={style}
+                        >
+                        </Form.Cascader>
+                    </Col>
+                    <Col span={12}>
+                        <Form.TreeSelect
+                            field="tree"
+                            style={style}
+                            label='节点（TreeSelect）'
+                            placeholder='请选择服务节点'
+                            treeData={treeData}
+                            filterTreeNode
+                        >
+                        </Form.TreeSelect>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={12}>
+                        <TagInput 
+                            field="product"
+                            label='产品（TagInput）'
+                            initValue={['abc', 'ulikeCam']}
+                            placeholder='请输入产品'
+                            style={style}
+                        />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={24}>
+                        <Form.Upload
+                            field='files'
+                            label='证明文件（Upload）'
+                            action='//semi.design/api/upload'
+                        >
+                            <Button icon={<IconUpload />} theme="light">
+                                点击上传
+                            </Button>
+                        </Form.Upload>
+                    </Col>
+                </Row>
+            </Section>
+            <Section text='资源详情'>
+                <Row>
+                    <Col span={12}>
+                        <TextArea
+                            style={{ ...style, height: 120 }}
+                            field='description'
+                            label='申请理由（TextArea）'
+                            placeholder='请填写申请资源理由'
+                        />
+                    </Col>
+                    <Col span={12}>
+                        <CheckboxGroup
+                            field="type"
+                            direction='horizontal'
+                            label='申请类型（CheckboxGroup）'
+                            initValue={['user', 'admin']}
+                            rules={[
+                                { required: true }
+                            ]}
+                        >
+                            <Checkbox value="admin">admin</Checkbox>
+                            <Checkbox value="user">user</Checkbox>
+                            <Checkbox value="guest">guest</Checkbox>
+                            <Checkbox value="root">root</Checkbox>
+                        </CheckboxGroup>
+                        <RadioGroup field="isMonopolize" label='是否独占资源（Radio）' rules={[
+                            { type: 'boolean' },
+                            { required: true, message: '必须选择是否独占 ' }
+                        ]}>
+                            <Radio value={1}>是</Radio>
+                            <Radio value={0}>否</Radio>
+                        </RadioGroup>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={12}>
+                        <TimePicker field="time" label='截止时刻（TimePicker）' style={{ width: '90%' }}/>
+                    </Col>
+                    <Col span={12}>
+                        <InputNumber field='number' label='申请数量（InputNumber）' initValue={20} style={style}/>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={12}>
+                        <Slider field="range" label='资源使用报警阈值(%)（Slider）' initValue={10} style={{ width: '90%' }}/>
+                    </Col>
+                    <Col span={12}>
+                        <Switch field='switch' label='开关(Switch)'/>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={12}>
+                        <Rating field="rating" label='满意度(Rating)' initValue={2} style={{ width: '90%' }}/>
+                    </Col>
+                </Row>
+            </Section>
+            <Checkbox value="false" field="agree" noLabel={true}>
+                我已阅读并清楚相关规定（Checkbox）
+            </Checkbox>
+            <Space>
                 <Button type="primary" htmlType="submit" className="btn-margin-right">提交(submit)</Button>
                 <Button htmlType="reset">重置(reset)</Button>
-            </Form>
-        );
-    }
-}
+            </Space>
+        </Form>
+    );
+};
 ```
 
 ### 表单控件值的绑定
@@ -1493,7 +1486,7 @@ import { Form, Button } from '@douyinfe/semi-ui';
 );
 ```
 
-#### 数组类动态增删表单项-使用 ArrayField
+### 使用 ArrayField
 
 针对动态增删的数组类表单项，我们提供了 ArrayField 作用域来简化 add/remove 的操作  
 ArrayField 自带了 add、remove、addWithInitValue 等 api 用来执行新增行，删除行，新增带有初始值的行等操作  
@@ -1569,6 +1562,175 @@ class ArrayFieldDemo extends React.Component {
     }
 }
 ```
+
+
+#### 嵌套 ArrayField
+
+ArrayField 支持多级嵌套，如下是一个两级嵌套的例子
+
+```jsx live=true dir="column" noInline=true
+import { Form, ArrayField, Button, Card, Typography, } from "@douyinfe/semi-ui";
+import { IconPlusCircle, IconMinusCircle } from "@douyinfe/semi-icons";
+import React from "react";
+
+const selectOption = [
+    { label: '发件人地址', value: 'address' },
+    { label: '邮件主题', value: 'title' },
+    { label: '发送时间', value: 'sendTime' },
+    { label: '接收时间', value: 'receiveTime' },
+    { label: '正文', value: 'main' },
+    { label: '附件名称', value: 'attachmentName' },
+];
+
+const initValue = {
+    group: [
+        {
+            name: "收信规则1",
+            rules: [
+                { ruleType: "address", type: "include", text: "bytedance.com" },
+                { ruleType: "title", type: "exclude", text: "更新日志" },
+            ],
+        },
+        {
+            name: "收信规则2",
+            rules: [
+                { ruleType: "sendTime", type: "include", text: "2019" }
+            ],
+        },
+    ] 
+};
+
+const NestedField = (props) => {
+    const rowStyle = {
+        marginTop: 12,
+        marginLeft: 12,
+    };
+    return (
+        <ArrayField field={`${props.field}.rules`}>
+            {({ add, arrayFields, addWithInitValue }) => (
+                <React.Fragment>
+                    {arrayFields.map(({ field, key, remove }, i) => (
+                        <div style={{ display: "flex" }} key={key}>
+                            <Form.Select
+                                field={`${field}[ruleType]`}
+                                label={`${field}.ruleType`}
+                                noLabel
+                                optionList={selectOption}
+                                style={{ width: 120, marginRight: 12 }}
+                            ></Form.Select>
+                            <Form.Select
+                                field={`${field}[type]`}
+                                label={`${field}.type`}
+                                noLabel
+                                style={{ width: 100, marginRight: 12 }}
+                                optionList={[
+                                    { label: "包含", value: "include" },
+                                    { label: "不包含", value: "exclude" },
+                                ]}
+                            ></Form.Select>
+                            <Form.Input 
+                                field={`${field}[text]`}
+                                label={`${field}.text`}
+                                noLabel
+                                style={{ width: 200 }}
+                            ></Form.Input>
+                            <Button
+                                type="danger"
+                                theme="borderless"
+                                style={rowStyle}
+                                icon={<IconMinusCircle />}
+                                onClick={remove}
+                            />
+                            <Button
+                                icon={<IconPlusCircle />}
+                                style={rowStyle}
+                                disabled={i !== arrayFields.length - 1}
+                                onClick={() => {
+                                    addWithInitValue({
+                                        ruleType: `条件${arrayFields.length + 1}`,
+                                        type: "include",
+                                    });
+                                }}
+                            />
+                        </div>
+                    ))}
+                </React.Fragment>
+            )}
+        </ArrayField>
+    );
+};
+
+const NestArrayFieldDemo = () => {
+    return (
+        <Form
+            onValueChange={(values) => console.log(values)}
+            initValues={initValue}
+            labelPosition="left"
+            style={{ textAlign: "left" }}
+            allowEmpty
+        >
+            <ArrayField field="group" >
+                {({ add, arrayFields, addWithInitValue }) => (
+                    <React.Fragment>
+                        <Button
+                            icon={<IconPlusCircle />}
+                            theme="solid"
+                            onClick={() => {
+                                addWithInitValue({
+                                    name: "新规则名称",
+                                    rules: [
+                                        { ruleType: "main", type: "include", text: "" },
+                                        { ruleType: "attachmentName", type: "include", text: "" },
+                                    ],
+                                });
+                            }}
+                        >
+                            新增收信规则 
+                        </Button>
+                        {arrayFields.map(({ field, key, remove }, i) => (
+                            <div
+                                key={key}
+                                style={{ width: 1000, display: "flex", flexWrap: "wrap" }}
+                            >
+                                <Form.Input
+                                    field={`${field}[name]`}
+                                    labelPosition="top"
+                                    label={"规则名称"}
+                                    style={{ width: "600px" }}
+                                ></Form.Input>
+                                <Button
+                                    type="danger"
+                                    style={{ margin: "36px 0 0 12px" }}
+                                    icon={<IconMinusCircle />}
+                                    onClick={remove}
+                                />
+                                <Typography.Text strong style={{ flexBasis: "100%" }}>
+                                    当邮件到达，满足以下条件时：
+                                </Typography.Text>
+                                <Card
+                                    shadow="hover"
+                                    style={{
+                                        width: 620,
+                                        margin: "12px 0 0 24px",
+                                    }}
+                                >
+                                    <NestedField field={field} />
+                                </Card>
+                            </div>
+                        ))}
+                    </React.Fragment>
+                )}
+            </ArrayField>
+        </Form>
+    );
+};
+
+render(NestArrayFieldDemo);
+
+```
+
+
+
 
 ### Hooks 的使用
 
@@ -1904,7 +2066,7 @@ render(WithFieldDemo2);
 | className         | form 标签的 classname                                                                                                                                                        | string                                        |
 | component         | 用于声明表单控件，不可与 render、props.children 同时使用                                                                                                                     | ReactNode                                     |            |
 | disabled          | 统一应用在每个 Field 的 disabled 属性                                                                                                            | boolean                                       | false      |
-| extraTextPosition  | 统一应用在每个 Field 上的extraTextPosition属性，控制extraText的显示位置，可选`middle`（垂直方向以Label、extraText、Field主体的顺序显示）、`bottom` (垂直方向以Label、Field主体、extraText的顺序显示)  <br/>**在 v1.9.0 开始提供**                                                                                                                       | string                                       | 'bottom'       |
+| extraTextPosition  | 统一应用在每个 Field 上的extraTextPosition属性，控制extraText的显示位置，可选`middle`（垂直方向以Label、extraText、Field主体的顺序显示）、`bottom` (垂直方向以Label、Field主体、extraText的顺序显示)                                                                                                                        | string                                       | 'bottom'       |
 | getFormApi        | form mounted 时会回调该函数，将 formAPI 作为参数传入。formApi 可用于修改 form 内部状态（值、校验状态、错误信息）                                                             | function(formApi:object)                      |            |
 | initValues        | 用于统一设置表单初始值（仅会在组件挂载时消费一次），例如{fieldA:'hello', fieldB:['arr1', 'arr2']}                                                                       | object                                        |            |
 | layout            | Form 表单控件间的布局，目前支持水平(horizontal)、垂直(vertical)两种                                                                                                          | string                                        | 'vertical' |
@@ -1914,6 +2076,7 @@ render(WithFieldDemo2);
 | labelWidth        | 统一配置label 宽度                                                                                                                                                                   | string\|number                                |            |
 | onChange          | form 更新时触发，包括表单控件挂载/卸载/值变更/blur/验证状态变更/错误提示变更, 入参为 formState                                                                               | function(formState:object)                    |            |
 | onValueChange     | form 的值被更新时触发，仅在表单控件值发生变化时触发。第一个入参为 formState.values，第二个入参为当前发生变化的 field                                                         | function(values:object, changedValue: object) |            |
+| onErrorChange     | form 的校验状态被更新时触发。第一个入参为 formState.errors，第二个入参为当前发生变化的 field 的名称与校验结果（v2.66后提供）                                                        | function(values:object, changedError: object) |            |
 | onReset           | 点击 reset 按钮或调用 `formApi.reset()`时的回调函数                                                                                                                          | function()                                    |            |
 | onSubmit          | 点击 submit 按钮或调用 `formApi.submitForm()`，数据验证成功后的回调函数                                                                                                      | function(values:object, e: event)                       |            |
 | onSubmitFail      | 点击 submit 按钮或调用 `formApi.submitForm()`，数据验证失败后的回调函数                                                                                                      | function(errors:object, values:object, e: event)        |            |
@@ -1921,6 +2084,7 @@ render(WithFieldDemo2);
 | showValidateIcon  | Field 内的校验信息区块否自动添加对应状态的 icon 展示                                                                                                                         | boolean                                       | true       |
 | style             | 可将内联样式传入 form 标签                                                                                                                                                   | object                                        |
 | stopValidateWithError | 统一应用在每个 Field 的 stopValidateWithError，使用说明见 Field props中同名 API （v2.42后提供）                                                                            | boolean                             | false     |
+| stopPropagation | 是否阻止 submit或reset事件冒泡，用于嵌套 Form 场景下，内部 Form submit或reset时阻止事件往外传播，触发外部Form的事件。默认为 `{ reset: false, submit: false }`（v2.63后提供）                                                                            | object                             |      |
 | trigger    |  统一应用在每个 Field 的 trigger，使用说明详见 Field props中同名 API（v2.42后提供）                                                        | string\|array                            |  'change'  |
 | validateFields    | Form 级别的自定义校验函数，submit 时或 formApi.validate 时会被调用（配置Form级别校验器后，Field级别校验器在submit或formApi.validate()时不会再被触发）。支持同步校验、异步校验                                                                                   | function(values)                              |            |
 | wrapperCol        | 统一应用在每个 Field 上的布局，同[Col 组件](/zh-CN/basic/grid#Col)，设置`span`、`offset`值，如{span: 20, offset: 4}                                 | object                                        |
@@ -1955,6 +2119,7 @@ FormState 存储了所有 Form 内部的状态值，包括各表单控件的值�
 
 | Function      | 说明                                                                                                                                                                                                                             | example                                                                                                             |
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |---------------------------------------------------------------------------------------------------------------------|
+| getFormProps  | 获取 Form 组件上当前所有props的值，例如可用于读取 disabled 等。v 2.57.0 后提供                                                    | formApi.getFormProps(propNames?: string[])                                                                                              |
 | getFormState  | 获取 FormState                                                                                                                                                                                                                   | formApi.getFormState()                                                                                              |
 | submitForm    | 可手动触发 submit 提交操作                                                                                                                                                                                                       | formApi.submitForm()                                                                                                |
 | reset         | 可手动对 form 进行重置                                                                                                                                                                                                           | formApi.reset(fields?: Array <string\>)                                                                             |
@@ -1968,7 +2133,8 @@ FormState 存储了所有 Form 内部的状态值，包括各表单控件的值�
 | setError      | 修改 某个 field 的 error 信息                                                                                                                                                                                                    | formApi.setError(field: string, fieldErrorMessage: string)                                                          |
 | getError      | 获取 Field 的 error 状态                                                                                                                                                                                                         | formApi.getError(field: string)                                                                                     |
 | getFieldExist | 获取 Form 中是否存在对应的 field                                                                                                                                                                                                 | formApi.getFieldExist(field: string)                                                                                |
-| scrollToField | 滚动至指定的 field                                                                                                                                                                                                                   | formApi.scrollToField(field: string, scrollOpts: object)                                                            |
+| scrollToField | 滚动至指定的 field, 第二个入参将透传至scroll-into-view-if-needed | formApi.scrollToField(field: string, scrollOpts: [ScrollIntoViewOptions](https://github.com/stipsan/scroll-into-view-if-needed#options))                                                            |
+| scrollToError | 滚动至校验错误的field，可传指定 field 或者 index，传入 index 则滚动到第 index 个错误的 DOM，若不传参则滚动到DOM树中第一个校验出错的位置。 v2.61.0后提供  | formApi.scrollToError(<ApiType detail='{field?: string; index?: number; scrollOpts?: ScrollIntoViewOptions }'>ScrollToErrorOptions</ApiType>)                                                            |
 ### 如何获取 formApi
 
 -   Form 组件在 ComponentDidMount 阶段，会执行 props 传入的 getFormApi 回调，你可以在回调函数中保存 formApi 的引用，以便后续进行调用(**示例如下代码**)  
@@ -1978,6 +2144,23 @@ FormState 存储了所有 Form 内部的状态值，包括各表单控件的值�
 -   通过 [render props 方式声明表单](#支持的其他写法)，formApi 会作为参数注入
 -   通过 [useFormApi](#useFormApi) hook
 -   通过 [withFormApi](#HOC-withFormApi) HOC
+
+```jsx
+import React from 'react';
+import { Form, Button } from '@douyinfe/semi-ui';
+
+() => {
+    // 函数式组件通过useRef存储formApi
+    const api = useRef();
+
+    return (
+        <Form getFormApi={formApi => api.current = formApi}>
+            <Form.Input field='a' />
+            <Button onClick={()=>{console.log(api);}}>log</Button>
+        </Form>
+    );
+};
+```
 
 ```jsx
 import React from 'react';
@@ -2016,22 +2199,6 @@ class FormApiDemo extends React.Component {
 }
 ```
 
-```jsx
-import React from 'react';
-import { Form, Button } from '@douyinfe/semi-ui';
-
-() => {
-    // 函数式组件通过useRef存储formApi
-    const api = useRef();
-
-    return (
-        <Form getFormApi={formApi => api.current = formApi}>
-            <Form.Input field='a' />
-            <Button onClick={()=>{console.log(api);}}>log</Button>
-        </Form>
-    );
-};
-```
 
 ## Field Props
 

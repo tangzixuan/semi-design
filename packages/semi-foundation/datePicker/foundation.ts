@@ -18,6 +18,7 @@ import type { Type, DateInputFoundationProps, InsetInputValue } from './inputFou
 import type { MonthsGridFoundationProps } from './monthsGridFoundation';
 import type { WeekStartNumber } from './_utils/getMonthTable';
 import isValidTimeZone from './_utils/isValidTimeZone';
+import warning from '../utils/warning';
 
 export type ValidateStatus = ArrayElement<typeof strings.STATUS>;
 export type InputSize = ArrayElement<typeof strings.SIZE_SET>;
@@ -45,9 +46,10 @@ export type DisabledDateOptions = {
      */
     rangeInputFocus?: 'rangeStart' | 'rangeEnd' | false
 };
+
 export type PresetType = {
-    start?: string | Date | number;
-    end?: string | Date | number;
+    start?: BaseValueType | (() => BaseValueType);
+    end?: BaseValueType | (() => BaseValueType);
     text?: string
 };
 
@@ -112,7 +114,7 @@ export interface EventHandlerProps {
     onClear?: (e: any) => void;
     onFocus?: (e: any, rangType: RangeType) => void;
     onPresetClick?: OnPresetClickType;
-    onClickOutSide?: () => void
+    onClickOutSide?: (e: any) => void
 }
 
 export interface DatePickerFoundationProps extends ElementProps, RenderProps, EventHandlerProps, Pick<MonthsGridFoundationProps, 'startYear' | 'endYear'> {
@@ -225,7 +227,6 @@ export interface DatePickerAdapter extends DefaultAdapter<DatePickerFoundationPr
  */
 export default class DatePickerFoundation extends BaseFoundation<DatePickerAdapter> {
 
-    clickConfirmButton: boolean;
     constructor(adapter: DatePickerAdapter) {
         super({ ...adapter });
     }
@@ -291,6 +292,8 @@ export default class DatePickerFoundation extends BaseFoundation<DatePickerAdapt
                         parsedV = zonedTimeToUtc(parsedV, prevTimeZone);
                     }
                     result.push(isValidTimeZone(timeZone) ? utcToZonedTime(parsedV, timeZone) : parsedV);
+                } else {
+                    warning(true, `[Semi DatePicker] value cannot be parsed, value: ${String(v)}`);
                 }
             }
         }
@@ -385,17 +388,12 @@ export default class DatePickerFoundation extends BaseFoundation<DatePickerAdapt
      *    - date type and not multiple, close panel after select date
      *    - dateRange type, close panel after select rangeStart and rangeEnd
      *  4. click outside
-     * @param {Event} e
-     * @param {String} inputValue
-     * @param {Date[]} dates
      */
-    closePanel(e?: any, inputValue: string = null, dates?: Date[]) {
-        const { value } = this._adapter.getStates();
-        const willUpdateDates = isNullOrUndefined(dates) ? value : dates;
+    closePanel() {
         if (!this._isControlledComponent('open')) {
             this.close();
         } else {
-            this.resetInnerSelectedStates(willUpdateDates);
+            this.resetInnerSelectedStates();
         }
         this._adapter.notifyOpenChange(false);
     }
@@ -406,7 +404,8 @@ export default class DatePickerFoundation extends BaseFoundation<DatePickerAdapt
     }
 
     close() {
-        this._adapter.togglePanel(false, () => this.resetInnerSelectedStates());
+        this._adapter.togglePanel(false);
+        this.resetInnerSelectedStates();
         this._adapter.unregisterClickOutSide();
     }
 
@@ -430,15 +429,16 @@ export default class DatePickerFoundation extends BaseFoundation<DatePickerAdapt
     /**
      * reset cachedSelectedValue, inputValue when close panel
      */
-    resetInnerSelectedStates(willUpdateDates?: Date[]) {
-        const { value } = this._adapter.getStates();
-        const needResetCachedSelectedValue = !this.isCachedSelectedValueValid(willUpdateDates) || this._adapter.needConfirm() && !this.clickConfirmButton;
-        if (needResetCachedSelectedValue) {
-            this.resetCachedSelectedValue(value);
-        }
+    resetInnerSelectedStates() {
+        // 通过 setTimeout 保证需要获取到最新的 state 状态
+        setTimeout(() => {
+            const { value, cachedSelectedValue } = this._adapter.getStates();
+            if (!isEqual(value, cachedSelectedValue)) {
+                this.resetCachedSelectedValue(value);
+            }
+        }, 0);
         this.resetFocus();
         this.clearInputValue();
-        this.clickConfirmButton = false;
     }
 
     resetFocus(e?: any) {
@@ -994,26 +994,15 @@ export default class DatePickerFoundation extends BaseFoundation<DatePickerAdapt
              * 受控时如果输入不完整，由于没有触发 notifyChange
              * 需要组件内更新一下输入框的值，否则会出现选了一个日期但是输入框没有回显日期的问题 #1357
              */
-            if (!this._adapter.needConfirm() || fromPreset) {
-                if (isRangeTypeAndInputIncomplete) {
-                    // do not change value when selected value is incomplete
-                    this._adapter.updateInputValue(inputValue);
-                    this._adapter.updateInsetInputValue(insetInputValue);
-                    return;
-                } else {
-                    if (!controlled || fromPreset) {
-                        this._updateValueAndInput(dates, true, inputValue);
-                        this._adapter.updateInsetInputValue(insetInputValue);
-                    }
-                }
-            }
-            if (!controlled && this._adapter.needConfirm()) {
-                // select date only change inputValue when needConfirm is true
+            if (isRangeTypeAndInputIncomplete) {
+                // do not change value when selected value is incomplete
                 this._adapter.updateInputValue(inputValue);
                 this._adapter.updateInsetInputValue(insetInputValue);
-                // if inputValue is not complete, don't notifyChange
-                if (isRangeTypeAndInputIncomplete) {
-                    return;
+                return;
+            } else {
+                if (!controlled || fromPreset) {
+                    this._updateValueAndInput(dates, true, inputValue);
+                    this._adapter.updateInsetInputValue(insetInputValue);
                 }
             }
             if (!isEqual(value, stateValue)) {
@@ -1023,7 +1012,7 @@ export default class DatePickerFoundation extends BaseFoundation<DatePickerAdapt
 
         const focusRecordChecked = !needCheckFocusRecord || (needCheckFocusRecord && this._adapter.couldPanelClosed());
         if ((type === 'date' && !this._isMultiple() && closePanel) || (type === 'dateRange' && this._isRangeValueComplete(dates) && closePanel && focusRecordChecked)) {
-            this.closePanel(undefined, inputValue, dates);
+            this.closePanel();
         }
     }
 
@@ -1050,7 +1039,6 @@ export default class DatePickerFoundation extends BaseFoundation<DatePickerAdapt
     }
 
     handleConfirm() {
-        this.clickConfirmButton = true;
         const { cachedSelectedValue, value } = this._adapter.getStates();
         const isRangeValueComplete = this._isRangeValueComplete(cachedSelectedValue);
         const newValue = isRangeValueComplete ? cachedSelectedValue : value;
@@ -1058,7 +1046,7 @@ export default class DatePickerFoundation extends BaseFoundation<DatePickerAdapt
             this._adapter.updateValue(newValue);
         }
         // If the input is incomplete, the legal date of the last input is used
-        this.closePanel(undefined, undefined, newValue);
+        this.closePanel();
 
         if (isRangeValueComplete) {
             const { notifyValue, notifyDate } = this.disposeCallbackArgs(cachedSelectedValue);
@@ -1076,18 +1064,20 @@ export default class DatePickerFoundation extends BaseFoundation<DatePickerAdapt
     handlePresetClick(item: PresetType, e: any) {
         const { type, timeZone } = this.getProps();
         const prevTimeZone = this.getState('prevTimezone');
+        const start = typeof item.start === 'function' ? item.start() : item.start;
+        const end = typeof item.end === 'function' ? item.end() : item.end;
 
         let value;
         switch (type) {
             case 'month':
             case 'dateTime':
             case 'date':
-                value = this.parseWithTimezone([item.start], timeZone, prevTimeZone);
+                value = this.parseWithTimezone([start], timeZone, prevTimeZone);
                 this.handleSelectedChange(value);
                 break;
             case 'dateTimeRange':
             case 'dateRange':
-                value = this.parseWithTimezone([item.start, item.end], timeZone, prevTimeZone);
+                value = this.parseWithTimezone([start, end], timeZone, prevTimeZone);
                 this.handleSelectedChange(value, { needCheckFocusRecord: false });
                 break;
             default:

@@ -14,6 +14,9 @@ const local: Locale = {
         confirm: 'Konfirmasi',
         cancel: 'Batalkan',
     },
+    Tabs: {
+        more: "Lagi"
+    },
     TimePicker: {
         placeholder: {
             time: 'Pilih waktu',
@@ -97,7 +100,10 @@ const local: Locale = {
     },
     Table: {
         emptyText: 'Tidak ada Hasil',
-        pageText: 'Tampilkan halaman ${currentStart} sampai ${currentEnd} dari ${total}',
+        pageText: 'Menampilkan ${currentStart}-${currentEnd} dari ${total}',
+        descend: 'Klik untuk menurun',
+        ascend: 'Klik untuk menaik',
+        cancelSort: 'Batalkan penyortiran',
     },
     Select: {
         emptyText: 'Tidak ada Hasil',
@@ -166,6 +172,15 @@ const local: Locale = {
         downloadTip: 'unduh',
         adaptiveTip: 'Beradaptasi dengan halaman',
         originTip: 'Ukuran asli',
+    },
+    Chat: {
+        deleteConfirm: 'Apakah Anda yakin ingin menghapus sesi ini?？',
+        clearContext: 'Konteks telah dihapus',
+        copySuccess: 'Berhasil disalin',
+        stop: 'Berhenti',
+        copy: 'Salin',
+        copied: 'Disalin',
+        dropAreaText: 'Letakkan file di sini',
     },
 };
 

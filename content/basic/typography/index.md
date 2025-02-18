@@ -1,6 +1,6 @@
 ---
 localeCode: zh-CN
-order: 18
+order: 19
 category: 基础
 title:  Typography 版式
 icon: doc-typography
@@ -125,12 +125,12 @@ function Demo() {
         <div>
             <Title heading={5}>默认行距</Title>
             <Paragraph>
-                Semi Design 是由互娱社区前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
+                Semi Design 是由抖音前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
             </Paragraph>
             <br />
             <Title heading={5}>宽松行距</Title>
             <Paragraph spacing="extended">
-                Semi Design 是由互娱社区前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
+                Semi Design 是由抖音前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
             </Paragraph>
         </div>
     );
@@ -246,7 +246,10 @@ function Demo() {
 ```
 
 ### 文本大小
-段落组件和文本组件支持两种尺寸，`small`（12px） 和 `normal`（14px），默认为`normal`。
+段落组件和文本组件支持两种尺寸，`small`（12px） 和 `normal`（14px） 和 `inherit`，默认为`normal`。
+
+当段落组件或者文本组件嵌套使用时候，设置内层组件的 `size` 属性为 `inherit`，内层组件的 size 将继承外层组件的尺寸设置。
+
 ```jsx live=true
 import React from 'react';
 import { Typography } from '@douyinfe/semi-ui';
@@ -257,13 +260,17 @@ function Demo() {
         <div>
             <Text>正常文本</Text>
             <Paragraph spacing="extended">
-                Semi Design 是由互娱社区前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
+                Semi Design 是由抖音前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
             </Paragraph>
             <br />
             <Text size='small'>小文本</Text>
             <Paragraph size='small'>
-                Semi Design 是由互娱社区前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
+                Semi Design 是由抖音前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
             </Paragraph>
+            <br />
+            <Text size="small">这是一段文本，样式为 small
+                <Text link size="inherit">这是一段链接，设置 size 为 inherit 继承外部样式设置</Text>
+            </Text>
         </div>
     );
 }
@@ -273,10 +280,11 @@ function Demo() {
 可通过配置 copyable 属性支持文本的复制。  
 当 copyable 配置为 true时，默认复制内容为 children 本身，注意，此时 children 只支持 string类型传入    
 当 copyable 配置为 object 时，可通过 `copyable.content` 指定复制至粘贴板的内容，与 children 不再强关联， 此时 children 将不再限定类型，但 `copyable.content` 仍需要为 string    
+可以通过 `copyable.render` 属性，自定义复制按钮的渲染逻辑
 
 ```jsx live=true
 import React from 'react';
-import { Typography, TextArea } from '@douyinfe/semi-ui';
+import { Typography, TextArea, Button } from '@douyinfe/semi-ui';
 import { IconSetting } from '@douyinfe/semi-icons';
 
 function Demo() {
@@ -289,6 +297,18 @@ function Demo() {
             <Paragraph copyable={{ onCopy: () => Toast.success({ content: '复制文本成功' }) }}>点击右边的图标复制文本。</Paragraph>
             时间戳: <Numeral truncate="ceil" copyable underline>{new Date().getTime()/1000}s</Numeral>
             <Paragraph copyable={{ icon: <IconSetting style={{ color: 'var(--semi-color-link)' }}/> }}>自定义复制节点</Paragraph>
+            <Paragraph copyable={{
+                content: 'Custom render!',
+                render: (copied, doCopy, config) => {
+                    return (
+                        <Button size="small" onClick={doCopy}>
+                            <span>{copied ? '复制成功' : `点击复制:${config.content}`}</span>
+                        </Button>
+                    );
+                }
+            }}>
+                自定义复制渲染
+            </Paragraph>
             <br/>
             <br/>
             <Text type="secondary">粘贴区域：</Text>
@@ -306,15 +326,19 @@ function Demo() {
     1. ellipsis 仅支持纯文本的截断，不支持 reactNode 等复杂类型，请确保 children 传入内容类型为 string <br/>
     2. ellipsis 要实现缩略，需要有明确的 width或 maxWidth 宽度限制做对比判断。若自身未设置宽度（例如纯依靠 flex 属性撑开），或 width为 100% 等不定数值，那么父级需要有明确的 width或 maxWidth <br/>
     3. ellipsis 需要获取 DOM 的宽高度等信息用以做基本判断，若自身或父级存在 display:none 样式会导致取值不正确，此时缩略会失效<br/>
+    4. 省略文本的计算，分为CSS 截断和 JS 截断，强依赖 DOM 元素的相关状态获取。在结构复杂的页面，大量使用 Typography 可能会导致过多的 reflow 重排，建议选择合适的省略方式避免造成性能负担。更多信息见 <a href="#faq">FAQ</a> 
 </Notice>
 
 
 ```jsx live=true
 import React from 'react';
-import { Typography } from '@douyinfe/semi-ui';
+import { Typography, Tooltip } from '@douyinfe/semi-ui';
 
 function Demo() {
     const { Paragraph, Title, Text } = Typography;
+    const customRenderTooltip = useCallback((content, children) => {
+        return <Tooltip content={content} style={{ backgroundColor: 'var(--semi-color-primary)' }}>{children}</Tooltip>;
+    }, []);
 
     return (
         <div>
@@ -339,19 +363,19 @@ function Demo() {
             </Text>
             <br/>
             <Paragraph ellipsis={{ suffix: '小尾巴' }} style={{ width: 300 }}>
-                有后缀的情况：Semi Design 是由互娱社区前端团队与 UED 团队共同设计开发并维护的设计系统。
+                有后缀的情况：Semi Design 是由抖音前端团队与 UED 团队共同设计开发并维护的设计系统。
             </Paragraph>
             <br/>
             <Paragraph ellipsis={{ rows: 3 }} style={{ width: 300 }}>
-                这是一个多行截断的例子：Semi Design 是由互娱社区前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
+                这是一个多行截断的例子：Semi Design 是由抖音前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
             </Paragraph>
             <br/>
             <Paragraph ellipsis={{ rows: 3, showTooltip: { type: 'popover', opts: { style: { width: 300 } } } }} style={{ width: 300 }}>
-                多行截断，展示 Popover：Semi Design 是由互娱社区前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
+                多行截断，展示 Popover：Semi Design 是由抖音前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
             </Paragraph>
             <br/>
             <Paragraph ellipsis={{ rows: 3, expandable: true, collapsible: true, collapseText: '折叠我吧', onExpand: (bool, e) => console.log(bool, e) }} style={{ width: 300 }}>
-                支持展开和折叠：Semi Design 是由互娱社区前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
+                支持展开和折叠：Semi Design 是由抖音前端团队与 UED 团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的 Web 应用。
             </Paragraph>
             <br/>
             <Text 
@@ -365,6 +389,18 @@ function Demo() {
             >
                 sssssssssssssssssssssssss
             </Text>
+            <br/><br/>
+            <Title 
+                heading={5} 
+                ellipsis={{ 
+                    showTooltip: {
+                        renderTooltip: customRenderTooltip
+                    }
+                }} 
+                style={{ width: 250 }}
+            >
+                这是一个自定义弹出层组件的省略文本，背景色是蓝色
+            </Title>
         </div>
     );
 }
@@ -438,17 +474,17 @@ function Demo() {
 | --------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | --------- | ------ |
 | component | 自定义渲染元素                                                                                                                          | html element                      | span      |        |
 | code      | 是否被 `code` 元素包裹                                                                                                                          | boolean                      | -      |        |
-| copyable  | 是否可拷贝                                                                                                                              | boolean \| object:[Copyable Config](#Copyable-Config) | false     | 0.27.0 |
-| delete    | 添加删除线样式                                                                                                                          | boolean                           | false     | 0.27.0 |
-| disabled  | 禁用文本                                                                                                                                | boolean                           | false     | 0.27.0 |
-| ellipsis  | 设置自动溢出省略                                                                                                                        | boolean\|object:Ellipsis Config   | false     | 0.34.0 |
-| icon      | 前缀图标                                                                                                                                | ReactNode                         | -         | 0.27.0 |
-| link      | 是否为链接，传object时，属性将透传给a标签                                                                                               | boolean\|object                   | false     | 0.27.0 |
-| mark      | 添加标记样式                                                                                                                            | boolean                           | false     | 0.27.0 |
-| size      | 文本大小，可选`normal`，`small`                                                                                                         | string                            | `normal`  | 0.27.0 |
-| strong    | 是否加粗                                                                                                                                | boolean                           | false     | 0.27.0 |
-| type      | 文本类型，可选 `primary`, `secondary`, `warning`, `danger`, `tertiary`(**v>=1.2.0**), `quaternary`(**v>=1.2.0**), `success`(**v>=1.7.0**) | string                            | `primary` | 0.27.0 |
-| underline | 添加下划线样式                                                                                                                          | boolean                           | false     | 0.27.0 |
+| copyable  | 是否可拷贝                                                                                                                              | boolean \| object:[Copyable Config](#Copyable-Config) | false     |  |
+| delete    | 添加删除线样式                                                                                                                          | boolean                           | false     |  |
+| disabled  | 禁用文本                                                                                                                                | boolean                           | false     |  |
+| ellipsis  | 设置自动溢出省略                                                                                                                        | boolean\|object:Ellipsis Config   | false     |  |
+| icon      | 前缀图标                                                                                                                                | ReactNode                         | -         |  |
+| link      | 是否为链接，传object时，属性将透传给a标签                                                                                               | boolean\|object                   | false     |  |
+| mark      | 添加标记样式                                                                                                                            | boolean                           | false     |  |
+| size      | 文本大小，可选`normal`，`small`，`inherit`                                                                                                         | string                            | `normal`  |  |
+| strong    | 是否加粗                                                                                                                                | boolean                           | false     |  |
+| type      | 文本类型，可选 `primary`, `secondary`, `warning`, `danger`, `tertiary`(**v>=1.2.0**), `quaternary`(**v>=1.2.0**), `success`(**v>=1.7.0**) | string                            | `primary` |  |
+| underline | 添加下划线样式                                                                                                                          | boolean                           | false     |  |
 | weight | 设置字重  |  number                                        |  | 2.34.0 |
 
 
@@ -457,15 +493,15 @@ function Demo() {
 | 属性      | 说明                                                                                                                                      | 类型                                                    | 默认值  | 版本     |
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------------- |-------------------------------------------------------| ------- |--------|
 | component | 自定义渲染元素，默认由 heading 决定                                                                                                       | html element                                          | h1~h6   |        |
-| copyable  | 是否可拷贝                                                                                                                                | boolean \| object:[Copyable Config](#Copyable-Config) | false   | 0.27.0 |
-| delete    | 添加删除线样式                                                                                                                            | boolean                                               | false   | 0.27.0 |
-| disabled  | 禁用文本                                                                                                                                  | boolean                                               | false   | 0.27.0 |
-| ellipsis  | 设置自动溢出省略                                                                                                                          | boolean\|object:Ellipsis Config                       | false   | 0.34.0 |
-| heading   | 标题级别，可选1， 2， 3，4，5，6，对应相应的标题                                                                                          | number                                                | 1       | 0.27.0 |
-| link      | 是否为链接，传object时，属性将透传给a标签                                                                                                 | boolean\|object                                       | false   | 0.27.0 |
-| mark      | 添加标记样式                                                                                                                              | boolean                                               | false   | 0.27.0 |
-| type      | 文本类型，可选 `primary`, `secondary`, `warning`, `danger`, `tertiary`(**v>=1.2.0**), `quaternary`(**v>=1.2.0**), `success`(**v>=1.7.0**) | string                                                | `primary` | 0.27.0 |
-| underline | 添加下划线样式                                                                                                                            | boolean                                               | false   | 0.27.0 |
+| copyable  | 是否可拷贝                                                                                                                                | boolean \| object:[Copyable Config](#Copyable-Config) | false   |  |
+| delete    | 添加删除线样式                                                                                                                            | boolean                                               | false   |  |
+| disabled  | 禁用文本                                                                                                                                  | boolean                                               | false   |  |
+| ellipsis  | 设置自动溢出省略                                                                                                                          | boolean\|object:Ellipsis Config                       | false   |  |
+| heading   | 标题级别，可选1， 2， 3，4，5，6，对应相应的标题                                                                                          | number                                                | 1       |  |
+| link      | 是否为链接，传object时，属性将透传给a标签                                                                                                 | boolean\|object                                       | false   |  |
+| mark      | 添加标记样式                                                                                                                              | boolean                                               | false   |  |
+| type      | 文本类型，可选 `primary`, `secondary`, `warning`, `danger`, `tertiary`(**v>=1.2.0**), `quaternary`(**v>=1.2.0**), `success`(**v>=1.7.0**) | string                                                | `primary` |  |
+| underline | 添加下划线样式                                                                                                                            | boolean                                               | false   |  |
 | weight | 设置字重, 可选 `light`, `regular`, `medium`, `semibold`, `bold`, `default`  | string, number                                        |  | 2.34.0 |
 
 ### Typography.Paragraph
@@ -473,17 +509,17 @@ function Demo() {
 | 属性      | 说明                                                                                                                                      | 类型                              | 默认值    | 版本   |
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | --------- | ------ |
 | component | 自定义渲染元素                                                                                                                            | html element                      | p         |        |
-| copyable  | 是否可拷贝                                                                                                                                | boolean \| object:[Copyable Config](#Copyable-Config) | false     | 0.27.0 |
-| delete    | 添加删除线样式                                                                                                                            | boolean                           | false     | 0.27.0 |
-| disabled  | 禁用文本                                                                                                                                  | boolean                           | false     | 0.27.0 |
-| ellipsis  | 设置自动溢出省略                                                                                                                          | boolean\|object:Ellipsis Config   | false     | 0.34.0 |
-| link      | 是否为链接，传object时，属性将透传给a标签                                                                                                 | boolean\|object                   | false     | 0.27.0 |
-| mark      | 添加标记样式                                                                                                                              | boolean                           | false     | 0.27.0 |
-| size      | 文本大小，可选`normal`，`small`                                                                                                           | string                            | `normal`  | 0.27.0 |
-| spacing   | 行距大小，可选`normal`，`extended`                                                                                                           | string                            | `normal`  | 0.27.0 |
-| strong    | 是否加粗                                                                                                                                  | boolean                           | false     | 0.27.0 |
-| type      | 文本类型，可选 `primary`, `secondary`, `warning`, `danger`, `tertiary`(**v>=1.2.0**), `quaternary`(**v>=1.2.0**), `success`(**v>=1.7.0**) | string                            | `primary` | 0.27.0 |
-| underline | 添加下划线样式                                                                                                                            | boolean                           | false     | 0.27.0 |
+| copyable  | 是否可拷贝                                                                                                                                | boolean \| object:[Copyable Config](#Copyable-Config) | false     |  |
+| delete    | 添加删除线样式                                                                                                                            | boolean                           | false     |  |
+| disabled  | 禁用文本                                                                                                                                  | boolean                           | false     |  |
+| ellipsis  | 设置自动溢出省略                                                                                                                          | boolean\|object:Ellipsis Config   | false     |  |
+| link      | 是否为链接，传object时，属性将透传给a标签                                                                                                 | boolean\|object                   | false     |  |
+| mark      | 添加标记样式                                                                                                                              | boolean                           | false     |  |
+| size      | 文本大小，可选`normal`，`small`                                                                                                           | string                            | `normal`  |  |
+| spacing   | 行距大小，可选`normal`，`extended`                                                                                                           | string                            | `normal`  |  |
+| strong    | 是否加粗                                                                                                                                  | boolean                           | false     |  |
+| type      | 文本类型，可选 `primary`, `secondary`, `warning`, `danger`, `tertiary`(**v>=1.2.0**), `quaternary`(**v>=1.2.0**), `success`(**v>=1.7.0**) | string                            | `primary` |  |
+| underline | 添加下划线样式                                                                                                                            | boolean                           | false     |  |
 
 ### Typography.Numeral
 
@@ -518,18 +554,19 @@ function Demo() {
 | expandable   | 是否支持展开                                                                                                      | boolean                                             | false  |
 | pos          | 省略截断的位置，支持末尾和中间截断：`end`, `middle`                                                               | string                                              | `end`  |
 | rows         | 省略溢出行数                                                                                                      | number                                              | 1      |
-| showTooltip  | 是否展示 tooltip 及相关配置: type，浮层内容承载的组件，支持 Tooltip\| Popover；opts，其他需要透传给浮层组件的属性 | boolean\|{type: 'tooltip'\|'popover', opts: object} | false  |
+| showTooltip  | 是否展示 tooltip 及相关配置: type，浮层内容承载的组件，支持 Tooltip\| Popover；opts，其他需要透传给浮层组件的属性； renderTooltip，自定义渲染弹出层组件 | boolean\|{type: 'tooltip'\|'popover', opts: object, renderTooltip: (content: ReactNode, children: ReactNode) => ReactNode} | false  |
 | suffix       | 始终展示的后缀                                                                                                    | string                                              | -      |
 | onExpand     | 展开/收起的回调                                                                                                   | function(expanded: bool, Event: e)                  | -      |
 
 ### Copyable Config
 | 属性       | 说明                        | 类型                                           | 默认值 | 版本   |
 | ---------- | --------------------------- | ---------------------------------------------- | ------ | ------ |
-| content    | 复制出的文本                | string                                         | -      | 0.27.0 |
-| copyTip    | 复制图标的 tooltip 展示内容 | React.node                                     | -      | 1.0.0  |
+| content    | 复制出的文本                | string                                         | -      |  |
+| copyTip    | 复制图标的 tooltip 展示内容 | React.node                                     | -      |   |
 | icon       | 自定义渲染复制节点       | React.node                                       | -      | 2.31.0 |
-| onCopy     | 复制回调                    | Function(e:Event, content:string, res:boolean) | -      | 0.27.0 |
-| successTip | 复制成功的展示内容          | React.node                                     | -      | 0.33.0 |
+| onCopy     | 复制回调                    | Function(e:Event, content:string, res:boolean) | -      |  |
+| render | 自定义渲染复制节点       | <ApiType detail='(copied: boolean, doCopy: (e: React.MouseEvent) => void, configs: CopyableConfig) => React.ReactNode'>function(copied, doCopy, configs)</ApiType> | -      | 2.65.0 |
+| successTip | 复制成功的展示内容          | React.node                                     | -      |  |
 
 
 
@@ -570,3 +607,13 @@ function Demo() {
 
 ## 设计变量
 <DesignToken/>
+
+## FAQ
+
+- **Typography 省略具体机制及注意事项?**
+
+    Semi 截断有两种策略， CSS 截断和 JS 截断。当设置中间截断（pos='middle')、可展开（expandable)、有后缀（suffix 非空）、可复制（copyable），启用 JS 截断策略；非以上场景，启用 CSS 截断策略。
+
+    通常来说，CSS 截断性能优于 JS 截断。在 children、 容器尺寸不变的情况下，CSS 截断只涉及 1~2 次计算，js 截断可能涉及多次计算。
+
+    同时使用大量带有截断功能的 Typography 需注意性能消耗，如在 Table 中，可通过设置合理的页容量进行分页减少性能损耗。

@@ -1,6 +1,6 @@
 ---
 localeCode: en-US
-order: 23
+order: 34
 category: Input
 title: DatePicker
 subTitle: Date Selector
@@ -77,7 +77,7 @@ class App extends React.Component {
 ### Date and Time Selection
 
 Set `type` to `dateTime`, can choose date and time.  
-If you want to remove the infinite loop scrolling interaction of TimePicker, you can pass timePickerOpts into a specific configuration to close it.
+Starting from version V2.22.0, we changed the default mode of ScrollItem in TimePicker from wheel to normal. If you want to apply the infinite scrolling effect again, you can enable it by passing in a specific configuration through timePickerOpts.
 
 ```jsx live=true
 import React from 'react';
@@ -91,8 +91,8 @@ class App extends React.Component {
                 <DatePicker type="dateTime" />
                 <br />
                 <br />
-                <h4>Turn off cycled mode</h4>
-                <DatePicker type="dateTime" timePickerOpts={{ scrollItemProps: { cycled: false } }} />
+                <h4>Turn on cycled mode</h4>
+                <DatePicker type="dateTime" timePickerOpts={{ scrollItemProps: { mode: "wheel", cycled: true } }} />
             </>
         );
     }
@@ -915,7 +915,7 @@ function Demo() {
 | placeholder        | Input box prompts text                                                                                                                                                                                                                        | string\|string[]                                                                                                                                                                                                    | 'Select date'                                                                         |                           |
 | position           | Floating layer position, optional value with [Popover #API Reference · position](/en-US/show/popover#API%20Reference)                                                                                                                         | string                                                                                                                                                                                                    | 'bottomLeft'                                                                          |                           |
 | prefix             | Prefix content                                                                                                                                                                                                                                | string\|ReactNode                                                                                                                                                                                         |                                                                                       |                           |
-| presets            | Date Time Shortcut                                                                                                                                                                                                                            |  <ApiType detail='Array< { start: BaseValueType, end :BaseValueType, text: string } \| () => { start:B aseValueType, end: BaseValueType, text: string }>'>Array</ApiType>                                  | []                                                                                    |                           |
+| presets            | Date Time Shortcut, start and end support function type after v2.52                                                                                                                                                                                                                            |  <ApiType detail='type PresetType = { start?: BaseValueType \| (() => BaseValueType); end?: BaseValueType \| (() => BaseValueType); text?: string }; type PresetsType = Array<PresetType \| (() => PresetType)>;'>Array</ApiType>                                  | []                                                                                    |                           |
 | preventScroll | Indicates whether the browser should scroll the document to display the newly focused element, acting on the focus method inside the component, excluding the component passed in by the user                                                 | boolean |  |  |
 | presetPosition     | Date time shortcut panel position, optional 'left', 'right', 'top', 'bottom'                                                                                                                                                                  | 'bottom' | **2.18.0** |
 | rangeSeparator     | Custom range type picker separator of input trigger                                                                                                                                                                                           | string | '~' | **1.31.0** 
@@ -927,6 +927,7 @@ function Demo() {
 | startDateOffset    | When type is dateRange, set the start date of the selected range                                                                                                                                                                              | (selectedDate?: Date) => Date;                                                                                                                                                                            | -                                                                                     | **1.10.0**                |
 | startYear | start year of the year scroll panel                                                                                                                                                                                                           | number | 100 years before current year | **2.36.0** |
 | endYear | end year of the year scroll panel                                                                                                                                                                                                             | number | 100 years after current year | **2.36.0** |
+| stopPropagation | Whether to prevent click events on the popup layer from bubbling | boolean | true | |
 | syncSwitchMonth    | In the scene of range, it supports synchronous switching of the month of the dual panel                                                                                                                                                       |boolean|false|**1.28.0**|
 | timePickerOpts     | For other parameters that can be transparently passed to the time selector, see [TimePicker·API Reference](/en-US/input/timepicker#API%20Reference)                                                                                           |                                                                                                                                                                                                           | object                                                                                | **1.1.0**                 |
 | topSlot            | Render the top extra area                                                                                                                                                                                                                     | ReactNode                                                                                                                                                                                                 |                                                | **1.22.0**                   |
@@ -938,7 +939,7 @@ function Demo() {
 | onCancel           | Cancel the callback when selected, enter the reference as the value of the last confirmed selection, only `type` equals "dateTime"or "dateTimeRange" and `needConfirm` equals true                                                            | <ApiType detail='(date: DateType, dateStr: StringType) => void'>(date, dateString) => void</ApiType>                                                              |                                                                                       | **0.18.0**                |
 | onChange           | A callback when the value changes                                                                                                                                                                                                             |   <ApiType detail='(date: DateType, dateString: StringType) => void'>(date, dateString) => void</ApiType>       |                                                                                       |                           |
 | onClear            | A callback when click the clear button                                                                                                                                                                                                        | (event) => void                                                                                                                                                                                     | () => {}                                                                              | **1.16.0**           |
-| onClickOutSide    | When the pop-up layer is in a display state, click the non-popup layer and trigger callback                                                                                                                                                   | () => void | () => {} | **2.31.0** |
+| onClickOutSide    | When the pop-up layer is in a display state, click the non-popup layer and trigger callback, event parameter is supported since 2.68.0 | (event: React.mouseEvent) => void | () => {} | **2.31.0** |
 | onConfirm          | Confirm the callback at the time of selection, enter the reference as the value of the current selection, only `type` equals "dateTime" or "dateTimeRange" and `needConfirm` equals true                                                      |  <ApiType detail='(date: DateType, dateStr: StringType) => void'>(date, dateString) => void</ApiType>|                                                                                       | **0.18.0**                |
 | onFocus | Callback when focus is obtained. It is not recommended to use this API in range selection                                                                                                                                                     | (event) => void | () => {} | **1.0.0** |
 | onOpenChange       | Callback when popup open or close                                                                                                                                                                                                             | (isOpen) => void                                                                                                                                                                                 |                                                                                       |                           |
@@ -964,7 +965,8 @@ function Demo() {
     const ref = useRef();
     // Typescript
     // const ref = useRef<BaseDatePicker>();
-    // Why not import the DatePicker exported by the entry? -> The entry component is a forwardRef component, and the ref is transparently passed to this component
+    // Why not import the DatePicker exported by the entry? 
+    // The entry component is a forwardRef component, and the ref is transparently passed to this component
 
     const handleClickOutside = () => {
         console.log('click outside');
@@ -1029,13 +1031,16 @@ Adopted in the semi-ui component library [date-fns(v2.9.0)](https://date-fns.org
 -   `"m"`: minutes
 -   `"s"`: seconds
 
-The default date time is formatted to:
+The following uses `new Date('2023-12-09 08:08:00')` or `[new Date('2023-12-09 08:08:00'), new Date('2023-12-10 10 :08:00')]` as `value` to explain the impact of different types and different `format` values on the displayed value:
 
--   `"date"`(date): `"yyyy-mm-dd`
--   `"dateTime"`(date and time)`"yyyy-mm-dd HH:mm:ss"`
--   `"month"`(month): `"yyyy-MM"`
--   `"dateRange"`(Date Range): `"yyyy-mm-dd ~ yyyy-mm-dd"`
--   `"dateTimeRange"`(Date and Time Range): `"yyyy-mm-dd HH:mm:ss ~ yyyy-mm-dd HH:mm:ss"`
+| type | format | display value |
+| --- | --- | --- |
+| date | yyyy-MM-dd | 2023-12-09 |
+| dateTime | yyyy-MM-dd HH:mm:ss | 2023-12-09 08:08:00 |
+| month | yyyy-MM | 2023-12 |
+| dateRange | yyyy-MM-dd | 2023-12-09 ~ 2023-12-10 |
+| dateTimeRange | yyyy-MM-dd HH:mm:ss | 2023-12-09 08:08 ~ 2023-12-10 10:08 |
+
 
 Multiple dates or times are used by default `","` (English comma) separated.
 
@@ -1053,7 +1058,7 @@ Multiple dates or times are used by default `","` (English comma) separated.
 ## FAQ
 
 -   **Date time picker, when you choose time, minute and second, you don't want to scroll infinitely. How to achieve the effect?**  
-    This behavior can be controlled by a specific switch in timePickerOpts, timePickerOpts={{scrollItemProps: {cycled: false}}}, and cycled is set to false
+    Starting from version V2.22.0, we changed the default mode of ScrollItem in TimePicker from wheel to normal. If you want to apply the infinite scrolling effect again, you can control this behavior through a specific switch in timePickerOpts, that is, timePickerOpts={{ scrollItemProps: { mode: "wheel", cycled: true } }}.
 
 -   **How to set the default display time when the panel is opened?**  
     You can use the defaultPickerValue property.

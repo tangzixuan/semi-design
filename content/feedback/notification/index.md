@@ -1,6 +1,6 @@
 ---
 localeCode: zh-CN
-order: 68
+order: 82
 category: 反馈类
 title: Notification 通知
 icon: doc-notification
@@ -253,6 +253,41 @@ import { Notification, Button } from '@douyinfe/semi-ui';
         </>
     );
 };
+
+```
+
+
+### 更新内容
+
+可以通过唯一的 id 来更新内容。 >=2.45.0
+
+```jsx live=true
+import React from 'react';
+import { Notification, Button } from '@douyinfe/semi-ui';
+
+() => (
+    <Button
+        onClick={() => {
+            const id = Notification.open({
+                title: 'Hi, Bytedance',
+                content: 'ies dance dance dance',
+                duration: 3,
+            })
+            setTimeout(() => {
+                Notification.open({
+                    title: 'Hi, Bytedance',
+                    content: 'updated',
+                    duration: 10,
+                    id
+                })
+            }, 1000)
+        }
+        }
+    >
+        Display Notification
+    </Button>
+);
+
 
 ```
 

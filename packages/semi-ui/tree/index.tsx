@@ -19,7 +19,7 @@ import {
 } from '@douyinfe/semi-foundation/tree/treeUtil';
 import { cssClasses, strings } from '@douyinfe/semi-foundation/tree/constants';
 import BaseComponent from '../_base/baseComponent';
-import { isEmpty, isEqual, get, isFunction } from 'lodash';
+import { isEmpty, isEqual, get, isFunction, pick, isUndefined } from 'lodash';
 import { cloneDeep } from './treeUtil';
 import Input from '../input/index';
 import { FixedSizeList as VirtualList } from 'react-window';
@@ -52,6 +52,7 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
     static contextType = ConfigContext;
 
     static propTypes = {
+        autoMergeValue: PropTypes.bool,
         blockNode: PropTypes.bool,
         className: PropTypes.string,
         showClear: PropTypes.bool,
@@ -79,15 +80,17 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
         searchStyle: PropTypes.object,
         selectedKey: PropTypes.string,
         showFilteredOnly: PropTypes.bool,
+        showLine: PropTypes.bool,
         style: PropTypes.object,
         treeData: PropTypes.arrayOf(
             PropTypes.shape({
-                key: PropTypes.string.isRequired,
+                key: PropTypes.string,
                 value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
                 label: PropTypes.any,
                 isLeaf: PropTypes.bool,
             })
         ),
+        keyMaps: PropTypes.object,
         treeDataSimpleJson: PropTypes.object,
         treeNodeFilterProp: PropTypes.string,
         value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.array, PropTypes.object]),
@@ -132,11 +135,13 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
         motion: true,
         leafOnly: false,
         showFilteredOnly: false,
+        showLine: false,
         expandAction: false,
         disableStrictly: false,
         draggable: false,
         autoExpandWhenDragEnter: true,
         checkRelation: 'related',
+        autoMergeValue: true,
     };
 
     static TreeNode: typeof TreeNode;
@@ -190,6 +195,7 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
 
     static getDerivedStateFromProps(props: TreeProps, prevState: TreeState) {
         const { prevProps } = prevState;
+        const { keyMaps } = props;
         let treeData;
         let keyEntities = prevState.keyEntities || {};
         let valueEntities = prevState.cachedKeyValuePairs || {};
@@ -213,22 +219,25 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
             return firstInProps || treeDataHasChange;
         };
 
+        const needUpdateTreeData = needUpdate('treeData');
+        const needUpdateSimpleJson = needUpdate('treeDataSimpleJson');
+
         // Update the data of tree in state
-        if (needUpdate('treeData') || (props.draggable && needUpdateData())) {
+        if (needUpdateTreeData || (props.draggable && needUpdateData())) {
             treeData = props.treeData;
             newState.treeData = treeData;
-            const entitiesMap = convertDataToEntities(treeData);
+            const entitiesMap = convertDataToEntities(treeData, keyMaps);
             newState.keyEntities = {
                 ...entitiesMap.keyEntities,
             };
             keyEntities = newState.keyEntities;
             newState.cachedKeyValuePairs = { ...entitiesMap.valueEntities };
             valueEntities = newState.cachedKeyValuePairs;
-        } else if (needUpdate('treeDataSimpleJson')) {
+        } else if (needUpdateSimpleJson) {
             // Convert treeDataSimpleJson to treeData
             treeData = convertJsonToData(props.treeDataSimpleJson);
             newState.treeData = treeData;
-            const entitiesMap = convertDataToEntities(treeData);
+            const entitiesMap = convertDataToEntities(treeData, keyMaps);
             newState.keyEntities = {
                 ...entitiesMap.keyEntities,
             };
@@ -244,7 +253,7 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
                 newState.motionType = null;
             }
         }
-        const dataUpdated = needUpdate('treeDataSimpleJson') || needUpdate('treeData');
+        const dataUpdated = needUpdateSimpleJson || needUpdateTreeData;
         const expandAllWhenDataChange = dataUpdated && props.expandAll;
         if (!isSeaching) {
             // Update expandedKeys
@@ -311,7 +320,8 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
             if (treeData || newState.expandedKeys) {
                 const flattenNodes = flattenTreeData(
                     treeData || prevState.treeData,
-                    newState.expandedKeys || prevState.expandedKeys
+                    newState.expandedKeys || prevState.expandedKeys,
+                    keyMaps
                 );
                 newState.flattenNodes = flattenNodes;
             }
@@ -328,6 +338,7 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
                     showFilteredOnly: props.showFilteredOnly,
                     keyEntities: newState.keyEntities,
                     prevExpandedKeys: [...prevState.filteredExpandedKeys],
+                    keyMaps: keyMaps
                 });
                 newState.flattenNodes = filteredState.flattenNodes;
                 newState.motionKeys = new Set([]);
@@ -371,6 +382,7 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
                 newState.flattenNodes = flattenTreeData(
                     treeData || prevState.treeData,
                     newState.filteredExpandedKeys || prevState.filteredExpandedKeys,
+                    keyMaps,
                     props.showFilteredOnly && prevState.filteredShownKeys
                 );
             }
@@ -384,13 +396,13 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
             if (needUpdate('value')) {
                 newState.selectedKeys = findKeysForValues(
                     // In both cases whether withObject is turned on, the value is standardized to string
-                    normalizeValue(props.value, withObject),
+                    normalizeValue(props.value, withObject, keyMaps),
                     valueEntities,
                     isMultiple
                 );
             } else if (!prevProps && props.defaultValue) {
                 newState.selectedKeys = findKeysForValues(
-                    normalizeValue(props.defaultValue, withObject),
+                    normalizeValue(props.defaultValue, withObject, keyMaps),
                     valueEntities,
                     isMultiple
                 );
@@ -398,7 +410,7 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
                 // If `treeData` changed, we also need check it
                 if (props.value) {
                     newState.selectedKeys = findKeysForValues(
-                        normalizeValue(props.value, withObject) || '',
+                        normalizeValue(props.value, withObject, keyMaps) || '',
                         valueEntities,
                         isMultiple
                     );
@@ -409,13 +421,13 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
             // Get the selected node during multiple selection
             if (needUpdate('value')) {
                 checkedKeyValues = findKeysForValues(
-                    normalizeValue(props.value, withObject),
+                    normalizeValue(props.value, withObject, keyMaps),
                     valueEntities,
                     isMultiple
                 );
             } else if (!prevProps && props.defaultValue) {
                 checkedKeyValues = findKeysForValues(
-                    normalizeValue(props.defaultValue, withObject),
+                    normalizeValue(props.defaultValue, withObject, keyMaps),
                     valueEntities,
                     isMultiple
                 );
@@ -423,12 +435,12 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
                 // If `treeData` changed, we also need check it
                 if (props.value) {
                     checkedKeyValues = findKeysForValues(
-                        normalizeValue(props.value, withObject) || [],
+                        normalizeValue(props.value, withObject, keyMaps) || [],
                         valueEntities,
                         isMultiple
                     );
                 } else {
-                    checkedKeyValues = updateKeys(prevState.checkedKeys, keyEntities);
+                    checkedKeyValues = updateKeys(props.checkRelation === 'related' ? prevState.checkedKeys : prevState.realCheckedKeys, keyEntities);
                 }
             }
 
@@ -451,7 +463,7 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
 
         // update disableStrictly
         if (treeData && props.disableStrictly && props.checkRelation === 'related') {
-            newState.disabledKeys = calcDisabledKeys(keyEntities);
+            newState.disabledKeys = calcDisabledKeys(keyEntities, keyMaps);
         }
 
         return newState;
@@ -528,6 +540,9 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
             searchPlaceholder,
             showClear
         } = this.props;
+        if (searchRender === false) {
+            return null;
+        }
         const inputcls = cls(`${prefixcls}-input`);
         const { inputValue } = this.state;
         const inputProps = {
@@ -546,9 +561,6 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
                         inputProps.placeholder = searchPlaceholder || get(locale, 'searchPlaceholder');
                         if (isFunction(searchRender)) {
                             return searchRender({ ...inputProps });
-                        }
-                        if (searchRender === false) {
-                            return null;
                         }
                         return (
                             <Input
@@ -648,13 +660,24 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
     };
 
     renderTreeNode = (treeNode: FlattenNode, ind?: number, style?: React.CSSProperties) => {
-        const { data } = treeNode;
-        const { key } = data;
+        const { data, key } = treeNode;
         const treeNodeProps = this.foundation.getTreeNodeProps(key);
         if (!treeNodeProps) {
             return null;
         }
-        return <TreeNode {...treeNodeProps} {...data} key={key} data={data} style={isEmpty(style) ? {} : style} />;
+        const { keyMaps, showLine, expandIcon } = this.props;
+        const props: any = pick(treeNode, ['key', 'label', 'disabled', 'isLeaf', 'icon', 'isEnd']);
+        const children = data[get(keyMaps, 'children', 'children')];
+        !isUndefined(children) && (props.children = children);
+        return <TreeNode 
+            {...treeNodeProps} 
+            {...data} 
+            {...props} 
+            showLine={showLine} 
+            data={data}
+            expandIcon={expandIcon}
+            style={isEmpty(style) ? {} : style} 
+        />;
     };
 
     itemKey = (index: number, data: KeyEntity) => {
@@ -718,7 +741,7 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
             filteredKeys,
             dragOverNodeKey,
             dropPosition,
-            checkedKeys, 
+            checkedKeys,
             realCheckedKeys,
         } = this.state;
 
@@ -732,6 +755,7 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
             directory,
             multiple,
             showFilteredOnly,
+            showLine,
             motion,
             expandAction,
             loadData,
@@ -796,10 +820,10 @@ class Tree extends BaseComponent<TreeProps, TreeState> {
                 <div aria-label={this.props['aria-label']} className={wrapperCls} style={style} {...this.getDataAttr(rest)}>
                     {filterTreeNode ? this.renderInput() : null}
                     <div className={listCls} {...ariaAttr}>
-                        {noData ? this.renderEmpty() : (multiple ? 
+                        {noData ? this.renderEmpty() : (multiple ?
                             (<CheckboxGroup value={Array.from(checkRelation === 'related' ? checkedKeys : realCheckedKeys)}>
                                 {this.renderNodeList()}
-                            </CheckboxGroup>) : 
+                            </CheckboxGroup>) :
                             this.renderNodeList()
                         )}
                     </div>

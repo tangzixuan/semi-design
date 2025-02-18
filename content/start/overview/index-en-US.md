@@ -17,6 +17,18 @@ Icon,
 Layout,
 Typography
 ```
+## Plus Component
+
+```overview
+CodeHighlight,
+Markdown,
+Lottie,
+Chat,
+HotKeys,
+DragMove
+```
+
+
 
 ## Input
 
@@ -29,6 +41,7 @@ DatePicker,
 Form,
 Input,
 InputNumber,
+PinCode,
 Radio,
 Rating,
 Select,
@@ -67,6 +80,7 @@ Descriptions,
 Dropdown,
 Empty,
 Image,
+Cropper,
 List,
 Modal,
 OverflowList,

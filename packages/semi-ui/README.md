@@ -10,7 +10,7 @@
 <div align="center">
 
 [![LICENSE][license-badge]][license-url] [![NPM][npm-badge]][npm-url] [![CONTRIBUTORS][contributors-badge]][contributors-url]  ![Design Token][Design Token] [![FIGMA][figma-badge]][figma-url] 
-[![BUILD-JS][build-js-badge]][build-js-url] [![BUILD-CSS][build-css-badge]][build-css-url] [![CODECOV][codecov-badge]][codecov-url] [![Chromatic][chromatic-badge]][chromatic-url] [![Cypress][cypress-badge]][cypress-url]
+[![CODECOV][codecov-badge]][codecov-url] [![Chromatic][chromatic-badge]][chromatic-url] [![Cypress][cypress-badge]][cypress-url]
 [![Twitter Follow](https://img.shields.io/twitter/follow/SemiDesignUI?style=social)](https://twitter.com/SemiDesignUI)
 
 [npm-badge]: https://img.shields.io/npm/v/@douyinfe/semi-ui.svg
@@ -43,11 +43,11 @@
 
 # 🎉 Features
 
-- 💪 Up to 60+ high-quality Components.
+- 💪 Up to 70+ high-quality Components.
 - 💅 Code2Design, automatically generate Figma UI Kit according to different themes, keep same between design and code
 - 🚀 Powerful Design2Code support, convert figma draft to code in a few seconds
 - 💕 Complete A11y support, follows W3C standards to provide keyboard interaction, focus management and ARIA for all components
-- 💅 Up to 2700+ Design Tokens can be easily modify by Semi Design system management, make Semi Design to Any Design quickly.
+- 💅 Up to 3000+ Design Tokens can be easily modify by Semi Design system management, make Semi Design to Any Design quickly.
 - 🌍 Internationalization Support for Dozens of Languages, timezone, RTL support
 - ⚙️ Strict quality assurance, covering unit testing, E2E testing, visual testing
 - 👏 Written in Typescript, friendly Static Type Support. Based on Foundation/Adapter architecture, easy to read and contribute

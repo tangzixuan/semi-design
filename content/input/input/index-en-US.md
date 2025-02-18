@@ -1,6 +1,6 @@
 ---
 localeCode: en-US
-order: 25
+order: 36
 category: Input
 title:  Input
 subTitle: Input
@@ -296,6 +296,47 @@ import { TextArea } from '@douyinfe/semi-ui';
 );
 ```
 
+### Line break by Shift + Enter
+By default, in a TextArea, both `Enter` and `Shift` + `Enter` can achieve line breaks.
+Through appropriate event listening and disabling the default behavior, you can achieve disabling line breaks with Enter and only allowing line breaks with Shift + Enter.
+
+```jsx live=true
+import React from 'react';
+import { TextArea, HotKeys } from '@douyinfe/semi-ui';
+
+() => {
+    const [text, setText] = useState('');
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+        }
+    };
+
+    const handleChange = (value, event) => {
+        setText(event.target.value);
+    };
+
+    return (
+        <>  
+            <p style={{ display: 'flex' }}>
+                Use
+                <HotKeys
+                    hotKeys={['shift', 'enter']}
+                    style={{ marginBottom: 12, marginLeft: 4, marginRight: 4 }}
+                />
+                break line
+            </p>
+            <TextArea
+                value={text}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+            />
+        </>
+    );
+};
+```
+
 ### Autosize TextArea
 
 You can set `autosize` to allow TextArea resizing height with content.
@@ -434,7 +475,7 @@ Answers to some questions:
 | aria-label        | Set aria-label properties                                                                                              | string                          | -       |
 | aria-labelledby   | Set aria-labelledby properties                                                                                         | string                          | -       |
 | aria-required     | Set aria-required properties                                                                                           | string                          | -       |
-| autosize          | Toggle whether to allow autosize when content height changes                                                           | boolean                         | false   |
+| autosize          | Toggle whether to allow autosize when content height changes, can config max and min rows by object value`{minRows?: number, maxRows?: number}`<br />**object param support from v2.45.0**                                                           | boolean                         | false   |
 | borderless        | borderless mode  >=2.33.0                                                                                                                                                                     | boolean                         |           |
 | className         | Class name                                                                                                             | string                          | -       |
 | cols              | The visible width of the text control, in average character widths. If it is specified, it must be a positive integer. | number                          | -       |

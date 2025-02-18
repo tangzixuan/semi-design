@@ -1,8 +1,8 @@
 import React from 'react';
 import { cloneDeepWith, set, get } from 'lodash';
 import warning from '@douyinfe/semi-foundation/utils/warning';
-import { findAll } from '@douyinfe/semi-foundation/utils/getHighlight';
 import { isHTMLElement } from '@douyinfe/semi-foundation/utils/dom';
+import semiGlobal from "./semi-global";
 /**
  * stop propagation
  *
@@ -24,7 +24,9 @@ export function stopPropagation(e: React.MouseEvent | React.FocusEvent<HTMLEleme
  * 
  * skip clone function and react element
  */
-export function cloneDeep(value: any, customizer?: (value: any) => void) {
+export function cloneDeep<T>(value: T): T;
+export function cloneDeep<T>(value: T, customizer: (value: any) => any): any;
+export function cloneDeep(value: any, customizer?: (value: any) => any) {
     return cloneDeepWith(value, v => {
         if (typeof customizer === 'function') {
             return customizer(v);
@@ -63,48 +65,6 @@ export function cloneDeep(value: any, customizer?: (value: any) => void) {
         return undefined;
     });
 }
-
-/**
- * [getHighLightTextHTML description]
- *
- * @param   {string} sourceString [source content text]
- * @param   {Array<string>} searchWords [keywords to be highlighted]
- * @param   {object} option
- * @param   {true}      option.highlightTag [The tag wrapped by the highlighted content, mark is used by default]
- * @param   {true}      option.highlightClassName
- * @param   {true}      option.highlightStyle
- * @param   {boolean}   option.caseSensitive
- *
- * @return  {Array<object>}
- */
-export const getHighLightTextHTML = ({
-    sourceString = '',
-    searchWords = [],
-    option = { autoEscape: true, caseSensitive: false }
-}: GetHighLightTextHTMLProps) => {
-    const chunks: HighLightTextHTMLChunk[] = findAll({ sourceString, searchWords, ...option });
-    const markEle = option.highlightTag || 'mark';
-    const highlightClassName = option.highlightClassName || '';
-    const highlightStyle = option.highlightStyle || {};
-    return chunks.map((chunk: HighLightTextHTMLChunk, index: number) => {
-        const { end, start, highlight } = chunk;
-        const text = sourceString.substr(start, end - start);
-        if (highlight) {
-            return React.createElement(
-                markEle,
-                {
-                    style: highlightStyle,
-                    className: highlightClassName,
-                    key: text + index
-                },
-                text
-            );
-        } else {
-            return text;
-        }
-    });
-};
-
 export interface RegisterMediaQueryOption {
     match?: (e: MediaQueryList | MediaQueryListEvent) => void;
     unmatch?: (e: MediaQueryList | MediaQueryListEvent) => void;
@@ -137,25 +97,6 @@ export const registerMediaQuery = (media: string, { match, unmatch, callInInit =
     }
     return () => undefined;
 };
-export interface GetHighLightTextHTMLProps {
-    sourceString?: string;
-    searchWords?: string[];
-    option: HighLightTextHTMLOption
-}
-
-export interface HighLightTextHTMLOption {
-    highlightTag?: string;
-    highlightClassName?: string;
-    highlightStyle?: React.CSSProperties;
-    caseSensitive: boolean;
-    autoEscape: boolean
-}
-
-export interface HighLightTextHTMLChunk {
-    start?: number;
-    end?: number;
-    highlight?: any
-}
 
 /**
  * Determine whether the incoming element is a built-in icon
@@ -195,6 +136,23 @@ export function getFocusableElements(node: HTMLElement) {
     return focusableElements;
 }
 
+
+
+export async function runAfterTicks(func: (...args: any) => any, numberOfTicks: number) {
+    if (numberOfTicks===0) {
+        await func();
+        return;
+    } else {
+        await new Promise<void>(resolve=>{
+            setTimeout(async ()=>{
+                await runAfterTicks(func, numberOfTicks-1);
+                resolve();
+            }, 0);
+        });
+        return;
+    }
+}
+
 export function getScrollbarWidth() {
     if (globalThis && Object.prototype.toString.call(globalThis) === '[object Window]') {
         return window.innerWidth - document.documentElement.clientWidth;
@@ -202,4 +160,33 @@ export function getScrollbarWidth() {
     return 0;
 }
 
+export function getDefaultPropsFromGlobalConfig(componentName: string, semiDefaultProps: any = {}) {
+    const getFromGlobalConfig = ()=> semiGlobal?.config?.overrideDefaultProps?.[componentName] || {};
+    return new Proxy({
+        ...semiDefaultProps,
+    }, {
+        get(target, key, receiver) {
+            const defaultPropsFromGlobal = getFromGlobalConfig();
+            if (key in defaultPropsFromGlobal) {
+                return defaultPropsFromGlobal[key];
+            }
+            return Reflect.get(target, key, receiver);
+        },
+        set(target, key, value, receiver) {
+            return Reflect.set(target, key, value, receiver);
+        },
+        ownKeys() {
+            const defaultPropsFromGlobal = getFromGlobalConfig();
+            return Array.from(new Set([...Reflect.ownKeys(semiDefaultProps), ...Object.keys(defaultPropsFromGlobal)]));
+        },
+        getOwnPropertyDescriptor(target, key) {
+            const defaultPropsFromGlobal = getFromGlobalConfig();
+            if (key in defaultPropsFromGlobal) {
+                return Reflect.getOwnPropertyDescriptor(defaultPropsFromGlobal, key);
+            } else {
+                return Reflect.getOwnPropertyDescriptor(target, key);
+            }
+        }
+    });
+}
 

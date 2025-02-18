@@ -1,6 +1,6 @@
 ---
 localeCode: en-US
-order: 75
+order: 89
 category: Other
 title: LocaleProvider
 subTitle: LocaleProvider
@@ -28,7 +28,7 @@ brief: Internationalized components to provide multilingual support for Semi com
 
 ## Components supported
 
-> DatePicker、TimePicker、Modal、Pagination、Select、Table、Cascader、Calendar、TreeSelect、List、Typography、Transfer、Nav、Upload、Form、Navigation、Image
+Calendar、Cascader、Chat、DatePicker、Form、Image、List、List、Modal、Navigation、Nav、Pagination、Popconfirm、Select、Table、TimePicker、Transfer、Tree、TreeSelect、Typography、Upload
 
 ## How to use
 
@@ -303,7 +303,7 @@ class I18nDemo extends React.Component {
                         key: i,
                     };
                 });
-            })
+            });
             const srcList = useMemo(() => ([
                 "https://lf3-static.bytednsdoc.com/obj/eden-cn/ptlz_zlp/ljhwZthlaukjlkulzlp/root-web-sites/abstract.jpg",
                 "https://lf3-static.bytednsdoc.com/obj/eden-cn/ptlz_zlp/ljhwZthlaukjlkulzlp/root-web-sites/sky.jpg",
@@ -371,7 +371,7 @@ class I18nDemo extends React.Component {
                     <h5>Typography - Copyable</h5>
                     <Typography.Paragraph copyable>Click to copy text.</Typography.Paragraph>
                     <h5>Typography - Collapsible</h5>
-                    <Typography.Paragraph ellipsis={{ rows: 3, expandable: true, collapsible: true}} style={{ width: 300 }}>
+                    <Typography.Paragraph ellipsis={{ rows: 3, expandable: true, collapsible: true }} style={{ width: 300 }}>
                         {`Expandable and collapsible: Life's but a walking shadow, a poor player, that struts and frets his hour upon the stage, and then is heard no more; it is a tale told by an idiot, full of sound and fury, signifying nothing.`}
                     </Typography.Paragraph>
                     <h5>Transfer</h5>

@@ -12,7 +12,7 @@
 [![Twitter Follow](https://img.shields.io/twitter/follow/SemiDesignUI?style=social)](https://twitter.com/SemiDesignUI)
 
 [![LICENSE][license-badge]][license-url] [![NPM][npm-badge]][npm-url] [![CONTRIBUTORS][contributors-badge]][contributors-url]  ![Design Token][Design Token] [![FIGMA][figma-badge]][figma-url] 
-[![BUILD-JS][build-js-badge]][build-js-url] [![BUILD-CSS][build-css-badge]][build-css-url] [![CODECOV][codecov-badge]][codecov-url] [![Chromatic][chromatic-badge]][chromatic-url] [![Cypress][cypress-badge]][cypress-url]
+[![CODECOV][codecov-badge]][codecov-url] [![Chromatic][chromatic-badge]][chromatic-url] [![Cypress][cypress-badge]][cypress-url]
 
 
 [npm-badge]: https://img.shields.io/npm/v/@douyinfe/semi-ui.svg
@@ -51,15 +51,16 @@ English | [简体中文](./README-zh_CN.md)
 
 # 🎉 Features
 
-- 💪 Up to 60+ high-quality Components. Stable update since 2019
+- 💪 Up to 70+ high-quality Components. Stable update since 2019
 - 🚀 Official Design to Code (D2C) support, convert figma draft to real code in a few seconds
 - 💅 Code to Design (C2D), automatically generate Figma UI Kit according to different themes, keep same between design and code
 - 💕 Complete A11y support, follows W3C standards to provide keyboard interaction, focus management and ARIA for all components
-- 💅 Design system management Semi DSM, up to 2700+ Design Tokens, make Semi Design to Any Design quickly.
+- 💅 Design system management Semi DSM, up to 3000+ Design Tokens, make Semi Design to Any Design quickly.
 - 🌍 Internationalization Support for Dozens of Languages, timezone, RTL support
 - ⚙️ Strict quality assurance, covering unit testing, E2E testing, visual testing.
 - 👏 Written in Typescript, friendly Static Type Support. Based on Foundation/Adapter architecture, easy to read and contribute
 - 🥳 SSR (Server Side Rendering) Compatible. 
+- 📦 Easily compatible with web components, providing a complete adaptation solution, more suitable for building SDKs, browser plugins and other scenarios that require DOM isolation.
 
 # 🔥 Install
 
@@ -105,7 +106,7 @@ Install [Semi Figma Plugin](https://www.figma.com/community/plugin/1166339852662
 
 # 🎨 DSM Usage
 
-Define your own design system base on Semi UI with DSM in one click, Provide more than 2700 tokens for you to configure every detail. Sync between Figma and Code at all times.
+Define your own design system base on Semi UI with DSM in one click, Provide more than 3000 tokens for you to configure every detail. Sync between Figma and Code at all times.
 
 ![dsmintro](https://lf3-static.bytednsdoc.com/obj/eden-cn/ptlz_zlp/ljhwZthlaukjlkulzlp/github/dsmintro.png)
 
@@ -160,6 +161,19 @@ Thanks to [Chromatic](https://www.chromatic.com/) for providing the visual testi
 <a href="https://www.cypress.io/"><img src="https://user-images.githubusercontent.com/26477537/147624641-1274a91d-bc4c-463e-af1a-dbf15de54c49.png" width="90" height="30" alt="Cypress" /></a>
 
 Thanks to [Cypress](https://www.cypress.io/) for providing E2E testing.
+
+
+<div>
+  <a href="https://www.visactor.com#gh-light-mode-only" target="_blank">
+    <img alt="VisActor Logo" height="30" src="https://lf-dp.bytetos.com/obj/dp-open-internet-cn/visactor-site/bytedance/client/img/visactor/navigator-logo.svg"/>
+  </a>
+  <a href="https://www.visactor.com#gh-dark-mode-only" target="_blank">
+    <img alt="VisActor Logo" height="30" src="https://lf9-dp-fe-cms-tos.byteorg.com/obj/bit-cloud/visactor/logo_500_200_dark.svg"/>
+  </a>
+</div>
+
+Thanks to [VisActor](https://www.visactor.com/) for providing the data visualization solution.
+
 
 ## 👐 Contributing
 Thanks to all the people who already contributed!

@@ -1,13 +1,12 @@
 import React, { ReactNode, MutableRefObject } from 'react';
 
-import { BaseProps } from '../_base/baseComponent';
-import { PaginationProps } from '../pagination';
-import { CheckboxProps } from '../checkbox';
-import { DropdownProps } from '../dropdown';
-import { Locale } from '../locale/interface';
-import { ArrayElement } from '../_base/base';
+import type { BaseProps } from '../_base/baseComponent';
+import type { PaginationProps } from '../pagination';
+import type { CheckboxProps } from '../checkbox';
+import type { Locale } from '../locale/interface';
+import type { ArrayElement } from '../_base/base';
 import { strings } from '@douyinfe/semi-foundation/table/constants';
-import {
+import type {
     BaseRowKeyType,
     BaseSortOrder,
     BaseGroupBy,
@@ -19,9 +18,11 @@ import {
     BaseFilter,
     BaseChangeInfoFilter,
     BaseIncludeGroupRecord,
-    BaseEllipsis
+    BaseEllipsis,
+    OnChangeExtra
 } from '@douyinfe/semi-foundation/table/foundation';
-import { ScrollDirection, CSSDirection } from 'react-window';
+import type { ColumnFilterProps } from './ColumnFilter';
+import { TableCellProps } from './TableCell';
 
 export interface TableProps<RecordType extends Record<string, any> = any> extends BaseProps {
     bordered?: boolean;
@@ -49,6 +50,7 @@ export interface TableProps<RecordType extends Record<string, any> = any> extend
     hideExpandedColumn?: boolean;
     id?: string;
     indentSize?: number;
+    keepDOM?: boolean;
     loading?: boolean;
     pagination?: TablePagination;
     prefixCls?: string;
@@ -80,37 +82,52 @@ export interface ColumnProps<RecordType extends Record<string, any> = any> {
     children?: Array<ColumnProps<RecordType>>;
     className?: string;
     colSpan?: number;
+    /** use `dataIndex` to get current column data item from record. If you use `sorter` or `onFilter`, a unique `dataIndex` is required  */
     dataIndex?: string;
     defaultFilteredValue?: any[];
     defaultSortOrder?: SortOrder;
     filterChildrenRecord?: boolean;
-    filterDropdown?: React.ReactNode;
-    filterDropdownProps?: DropdownProps;
+    filterDropdown?: ColumnFilterProps['filterDropdown'];
+    /** render filter Dropdown panel content  */
+    renderFilterDropdown?: ColumnFilterProps['renderFilterDropdown'];
+    /** filter Dropdown props  */
+    filterDropdownProps?: ColumnFilterProps['filterDropdownProps'];
     filterDropdownVisible?: boolean;
     filterIcon?: FilterIcon;
     filterMultiple?: boolean;
     filteredValue?: any[];
+    /** `filters` is not required if you use `renderFilterDropdown`  */
     filters?: Filter[];
     fixed?: Fixed;
+    /** the key required by React. If you have already set the `dataIndex`, the key does not need to be set again.  */
     key?: string | number;
     render?: ColumnRender<RecordType>;
     renderFilterDropdownItem?: RenderFilterDropdownItem;
     sortChildrenRecord?: boolean;
     sortOrder?: SortOrder;
+    /** enable sorting, `dataIndex` is required at the same time  */
     sorter?: Sorter<RecordType>;
+    sortIcon?: SortIcon;
     title?: ColumnTitle;
     useFullRender?: boolean;
     width?: string | number;
     onCell?: OnCell<RecordType>;
+    /** enable filtering, `dataIndex` is required at the same time  */
     onFilter?: OnFilter<RecordType>;
     onFilterDropdownVisibleChange?: OnFilterDropdownVisibleChange;
     onHeaderCell?: OnHeaderCell<RecordType>;
     ellipsis?: BaseEllipsis;
-    resize?: boolean
+    resize?: boolean;
+    showSortTip?: boolean;
+    /**
+     * self control whether to update cell for performance reasons
+     */
+    shouldCellUpdate?: (props: TableCellProps, prevProps: TableCellProps) => boolean
 }
 
 export type Align = BaseAlign;
 export type SortOrder = BaseSortOrder;
+export type SortIcon = (props: { sortOrder: SortOrder }) => ReactNode;
 export type FilterIcon = boolean | React.ReactNode | FilterIconRenderFunction;
 export interface Filter extends BaseFilter {
     value?: any;
@@ -179,7 +196,7 @@ export interface OnRowReturnObject extends Omit<React.DetailedHTMLProps<React.HT
     style?: React.CSSProperties;
     onClick?: (e: React.MouseEvent) => void
 }
-export interface OnGroupedRowReturnObject extends Omit<React.HTMLAttributes<HTMLTableRowElement>, 'className'> {
+export interface OnGroupedRowReturnObject extends React.HTMLAttributes<HTMLTableRowElement> {
     [x: string]: any;
     style?: React.CSSProperties;
     onClick?: (e: React.MouseEvent) => void
@@ -197,29 +214,31 @@ export interface Data {
     key?: string | number
 }
 
+export type TableComponent<P> = React.ComponentType<P> | React.ForwardRefExoticComponent<P> | keyof React.ReactHTML;
+
 export interface TableComponents {
-    table?: ReactNode;
+    table?: TableComponent<any>;
     header?: {
-        outer?: ReactNode;
-        wrapper?: ReactNode;
-        row?: ReactNode;
-        cell?: ReactNode
+        outer?: TableComponent<any>;
+        wrapper?: TableComponent<any>;
+        row?: TableComponent<any>;
+        cell?: TableComponent<any>
     };
     body?: {
-        outer?: ReactNode;
-        wrapper?: ReactNode;
-        row?: ReactNode;
-        cell?: ReactNode;
+        outer?: TableComponent<any>;
+        wrapper?: TableComponent<any>;
+        row?: TableComponent<any>;
+        cell?: TableComponent<any>;
         colgroup?: {
-            wrapper?: ReactNode;
-            col?: ReactNode
+            wrapper?: TableComponent<any>;
+            col?: TableComponent<any>
         }
     };
     footer?: {
-        wrapper?: ReactNode;
-        row?: ReactNode;
-        cell?: ReactNode;
-        outer?: ReactNode
+        wrapper?: TableComponent<any>;
+        row?: TableComponent<any>;
+        cell?: TableComponent<any>;
+        outer?: TableComponent<any>
     }
 }
 
@@ -234,10 +253,28 @@ export interface RowSelectionProps<RecordType> {
     width?: string | number;
     onChange?: RowSelectionOnChange<RecordType>;
     onSelect?: RowSelectionOnSelect<RecordType>;
-    onSelectAll?: RowSelectionOnSelectAll<RecordType>
+    onSelectAll?: RowSelectionOnSelectAll<RecordType>;
+    onCell?: ColumnProps['onCell'];
+    onHeaderCell?: ColumnProps['onHeaderCell'];
+    renderCell?: RowSelectionRenderCell<RecordType>;
+    /**
+     * self control whether to update cell for performance reasons
+     */
+    shouldCellUpdate?: (props: TableCellProps, prevProps: TableCellProps) => boolean
 }
 
-export type GetCheckboxProps<RecordType> = (record: RecordType) => CheckboxProps;
+export type RowSelectionRenderCell<RecordType> = (renderCellArgs: {
+    selected: boolean;
+    record: RecordType;
+    originNode: JSX.Element;
+    inHeader: boolean;
+    disabled: boolean;
+    indeterminate: boolean;
+    index?: number;
+    selectRow?: (selected: boolean, e: Event) => void;
+    selectAll?: (selected: boolean, e: Event) => void
+}) => ReactNode;
+export type GetCheckboxProps<RecordType> = (record: RecordType) => Omit<CheckboxProps, 'defaultChecked' | 'checked' | 'indeterminate' | 'onChange'>;
 export type RowSelectionOnChange<RecordType> = (selectedRowKeys?: (string | number)[], selectedRows?: RecordType[]) => void;
 export type RowSelectionOnSelect<RecordType> = (
     record?: RecordType,
@@ -250,7 +287,35 @@ export type ExpandIcon = ((expanded?: boolean) => React.ReactNode) | React.React
 export type ExpandedRowRender<RecordType> = (record?: RecordType, index?: number, expanded?: boolean) => React.ReactNode;
 export type Footer<RecordType> = ReactNode | ((pageData?: RecordType[]) => React.ReactNode);
 export type FormatPageText = ((pageInfo?: { currentStart?: number; currentEnd?: number; total?: number }) => React.ReactNode) | boolean;
-export type GetVirtualizedListRef = (ref: MutableRefObject<any>) => void;
+/**
+ * ref to react-window `VariableSizeList` instance
+ * 
+ * only work when `virtualized` is truthy
+ * 
+ * @see https://github.com/DefinitelyTyped/DefinitelyTyped/blob/58aabc0cfd2baf08f5f71a2712ae7baa6cb2a3ce/types/react-window/index.d.ts#L378
+ */
+export type GetVirtualizedListRef = (ref: MutableRefObject<{
+    /**
+     * Scroll to the specified offset (scrollTop or scrollLeft, depending on the direction prop).
+     */
+    scrollTo(scrollOffset: number): void;
+    /**
+     * Scroll to the specified item.
+     *
+     * By default, the List will scroll as little as possible to ensure the item is visible.
+     * You can control the alignment of the item though by specifying a second alignment parameter. Acceptable values are:
+     *
+     * - auto (default) - Scroll as little as possible to ensure the item is visible. (If the item is already visible, it won't scroll at all.)
+     * - smart
+     *   - If the item is already visible, don't scroll at all.
+     *   - If it is less than one viewport away, scroll as little as possible so that it becomes visible.
+     *   - If it is more than one viewport away, scroll so that it is centered within the list.
+     * - center - Center align the item within the list.
+     * - end - Align the item to the end of the list (the bottom for vertical lists or the right for horizontal lists).
+     * - start - Align the item to the beginning of the list (the top for vertical lists or the left for horizontal lists).
+     */
+    scrollToItem(index: number, align?: "auto" | "smart" | "center" | "end" | "start"): void
+}>) => void;
 export type GroupByFunction<RecordType> = BaseGroupByFn<RecordType>;
 export type GroupBy<RecordType> = BaseGroupBy<RecordType>;
 export type Size = ArrayElement<typeof strings.SIZES>;
@@ -267,7 +332,7 @@ export interface ChangeInfo<RecordType> {
     pagination?: TablePaginationProps;
     filters?: ChangeInfoFilter<RecordType>[];
     sorter?: ChangeInfoSorter<RecordType>;
-    extra?: Record<string, any>
+    extra?: OnChangeExtra
 }
 export type OnChange<RecordType> = (changeInfo: ChangeInfo<RecordType>) => void;
 export type OnRow<RecordType> = (record?: RecordType, index?: number) => OnRowReturnObject;
@@ -285,7 +350,7 @@ export type RowKey<RecordType> = BaseRowKeyType | ((record?: RecordType) => stri
 export type RowSelection<RecordType> = RowSelectionProps<RecordType> | boolean;
 
 export type VirtualizedOnScrollArgs = {
-    scrollDirection?: ScrollDirection;
+    scrollDirection?: "forward" | "backward";
     scrollOffset?: number;
     scrollUpdateWasRequested?: boolean
 };
@@ -294,13 +359,11 @@ export type VirtualizeItemSizeRow = {
     sectionRow?: boolean; 
     expandedRow?: boolean
 };
-export type VirtualizedMode = 'list' | 'grid';
 export type VirtualizedItemSizeFn = (index?: number, row?: VirtualizeItemSizeRow) => number;
 export type VirtualizedItemSize = number | VirtualizedItemSizeFn;
 export type VirtualizedOnScroll = (object: VirtualizedOnScrollArgs) => void;
 export interface VirtualizedProps {
     [x: string]: any;
-    mode?: VirtualizedMode;
     itemSize?: VirtualizedItemSize;
     onScroll?: VirtualizedOnScroll
 }
@@ -328,7 +391,7 @@ export interface BodyScrollEvent extends React.UIEvent {
 export type BodyScrollPosition = 'both' | 'middle' | 'left' | 'right';
 
 export type TableLocale = Locale['Table'];
-export type Direction = CSSDirection;
+export type Direction = "ltr" | "rtl";
 export type IncludeGroupRecord<RecordType> = BaseIncludeGroupRecord<RecordType>;
 export type Sticky = boolean | {
     top?: number

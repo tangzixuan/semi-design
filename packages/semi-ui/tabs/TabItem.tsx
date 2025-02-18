@@ -37,7 +37,7 @@ const TabItem = (props: TabItemProps, ref: LegacyRef<HTMLDivElement>) => {
     } = props;
 
     const closableIcon = useMemo(() => {
-        return (type === 'card' && closable) ?
+        return closable ?
             <IconClose 
                 aria-label="Close" 
                 role="button" 
@@ -48,7 +48,7 @@ const TabItem = (props: TabItemProps, ref: LegacyRef<HTMLDivElement>) => {
 
     const renderIcon = useCallback(
         (icon: ReactNode) => (
-            <span>
+            <span className={`${cssClasses.TABS_BAR}-icon`}>
                 {icon}
             </span>
         ), []);

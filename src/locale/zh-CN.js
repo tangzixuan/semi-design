@@ -22,6 +22,15 @@ const appLocale = {
         'footer.component': 'React 组件库',
         'footer.dsm': '主题与 DSM',
 
+        //new footer
+        "footer.design": "设计系统",
+        "footer.getInfo": "获取 Semi 动态",
+        "footer.getInfo.lark": "Semi 飞书群",
+        "footer.getInfo.redBook": "小红书",
+        "footer.friends": "友情链接",
+
+
+
         // search
         'search.belong.component': '组件',
         'search.belong.material': '物料',
@@ -74,6 +83,7 @@ const appLocale = {
         // Icon list
         'icon.list.tab.fill': '面性图标',
         'icon.list.tab.stroked': '线性图标',
+        'icon.list.tab.lab': '彩色图标',
 
         // new  Home
         // page one
@@ -81,27 +91,29 @@ const appLocale = {
         "home_banner_description": "由抖音前端与 UED 团队维护，易于定制的现代化设计系统，帮助设计师与开发者打造高质量产品。",
         "start_using": "开始使用",
         // page two: products
-        "now_serving_100_000": "现已服务 10 万 + 用户",
+        "now_serving_100_000": "已服务 10 万 + 用户",
         // page three: feature
-        "feature_title": "完善的开发者体验",
+        "feature_title": "先进的开发者体验",
         "feature_subtitle": "开箱即用的底层能力支持，为开发者节省精力，避免重造",
         "feature_FA": "易于贡献的 FA 架构",
-        "feature_FA_description": "Semi 基于 FA 架构设计，主逻辑抽为 Foundation 包，易于迁移到其他框架",
-        "feature_a11y": "完备的无障碍支持",
-        "feature_a11y_description": "Semi 遵循 W3C 标准为所有组件提供键盘交互、焦点管理和语义化",
+        "feature_FA_description": "Semi 基于 FA 架构设计，主逻辑抽象为 Foundation 包，源码清晰易读，易于迁移到其他框架",
+        "feature_a11y": "A11y 无障碍友好",
+        "feature_a11y_description": "Semi 遵循 W3C 标准为所有组件提供键盘交互、焦点管理和语义化支持",
         "feature_language": "国际化与多语言",
-        "feature_language_description": "Semi 提供完备的多语言、多时区、RTL支持，轻松打造全球化应用",
+        "feature_language_description": "Semi 提供完备的多语言、多时区、RTL支持，助你轻松打造全球化应用",
         "feature_live_code": "Live Code 组件",
         "feature_live_code_description": "LiveCode 允许你使用在线代码编辑器即时演示你的 UI 组件",
         "feature_test": "稳定的质量保障",
-        "feature_test_description": "Semi 使用了单元测试等多种方法保证组件的稳定和质量，代码覆盖率达到 90%",
+        "feature_test_description": "Semi 稳定迭代5年+，使用了单元测试、E2E测试、视觉对比测试等多种方法保证组件的稳定和质量，测试覆盖率达到 90%",
+        "adapter_webComponents": "轻松兼容 web components",
+        "adapter_webComponents_description": "提供完整的适配方案，所有的组件在 shadow DOM 中均可正常工作，更适合用于构建 SDK、浏览器插件等需要 DOM 隔离的场景",
         "feature_SSR": "支持 SSR",
         "feature_SSR_description": "Semi 组件库支持 SSR 场景，可以在 Next.js 、 Gatsby 和 Remix 等框架中使用",
         "feature_D2C": "设计稿转代码",
-        "feature_D2C_description": "Semi 提供强大的 design to code能力，3-5s，一键点击，从 Figma 设计稿生成真实代码",
+        "feature_D2C_description": "Semi 提供高效的 design to code 能力，3-5s，一键点击，从 Figma 设计稿生成真实代码",
         // page four: theme
         "home.theme": "百变主题",
-        "home.theme.desc": "快速克隆或深度定制，灵活调配符合品牌调性的设计风格",
+        "home.theme.desc": "提供高达3000+ Design Token，快速克隆或深度定制，灵活调配符合品牌调性的设计风格",
         // page five: DSM
         "semi_dsm": "Semi 设计系统管理",
         "powerful_theme_editor__real_time_effect__one_click_synchronization_of_design_too_d77f5776bf126331e801d6d6aa0146f2": "强大的主题编辑器，实时生效，设计工具一键同步",
@@ -129,6 +141,7 @@ const appLocale = {
         // page seven: Web application
         "application_title": "打造现代 Web 应用",
         "application_subtitle": "使用 Semi 与现代操作系统、浏览器更贴近的设计语言",
+        "coze": "新一代一站式 AI Bot 开发平台，无论你是否有编程基础，都可以在扣子平台上快速搭建基于 AI 模型的各类问答 Bot，发布到豆包、飞书、微信客服、微信公众号多个渠道，与更多人一起玩转 AI。",
         "feishu_program": "飞书项目是 2022 年春季飞书发布的单品，支持大型团队将复杂项目拆解流程并可视化，直观呈现协作标准，让成员明晰权责，轻松掌握上下游信息。",
         "douyin_creator": "抖音创作服务平台是抖音创作者的专属服务平台，支持用户作为创作者和管理机构两种登录方式，提供多种功能助力用户高效运营",
         "anyweb": "Anyweb 是一个免费的网站构建器，可以轻松创建专业网站。无需编程技能，您可以通过 Anyweb 拖放编辑器快速轻松地设置自定义网站。",
@@ -143,6 +156,8 @@ const appLocale = {
         "content_theme_info": "兼容多元的品牌语言和产品形态，避免无意义的重造",
         "content_d2c": "Semi D2C 设计转代码的演进之路",
         "content_d2c_info": "用先进的工具连接设计师与开发者",
+        "content_d2c_openday": "字节跳动开源 OpenDay 主题分享",
+        "content_d2c_info_openday": "D2C 设计稿转代码深度解读",
         "content_test": "Semi Design 如何做质量保障",
         "content_test_info": "综合运用 Unit Test、E2E Test、Visual Test保障组件库稳定性",
 
@@ -215,8 +230,8 @@ const appLocale = {
         "private_message_management": "私信管理",
         "apple_account": "Apple 账号",
         "google_account": "Google 账号",
-        "douyin_little_assistant": "抖音小助手",
-        "volcano_little_helper": "火山小助手",
+        "douyin_assistant": "抖音小助手",
+        "ulike_assistant": "轻颜小助手",
         "placeholder_text": "占位文本",
         "send": "发送",
         "sender": "发信人",

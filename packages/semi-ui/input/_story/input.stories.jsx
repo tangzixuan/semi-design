@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import GraphemeSplitter from 'grapheme-splitter';
 import { isFunction, isString } from 'lodash';
 
@@ -47,8 +47,8 @@ export const _Input = () => (
       width: 200,
     }}
   >
-    <Input />
-    <Input validateStatus="warning" />
+      <Input onlyBorder={2} size={"large"} />
+      <Input validateStatus="warning" />
     <Input validateStatus="error" />
     <br />
     <br />
@@ -69,12 +69,12 @@ _Input.parameters = {
 
 export const InputAutofocus = () => (
   <div className="input">
-    <Input placeholder="ies input" autofocus />
+    <Input placeholder="ies input" autoFocus />
   </div>
 );
 
 InputAutofocus.story = {
-  name: 'Input autofocus',
+  name: 'Input autoFocus',
 };
 
 export const InputPlaceholder = () => (
@@ -117,7 +117,7 @@ export const InputPrefixSuffixDemo = () => (
     <Input prefix="search" showClear defaultValue="Semi Design" />
     <Input prefix={<span>pre</span>} showClear defaultValue="Semi Design" />
     <Input prefix={<span>pre</span>} showClear defaultValue="Semi Design" />
-    <Input suffix={<IconSearch />} autofocus showClear defaultValue="Semi Design"></Input>
+    <Input suffix={<IconSearch />} autoFocus showClear defaultValue="Semi Design"></Input>
     <Input suffix="Semi Design" showClear defaultValue="Semi Design"></Input>
     <Input
       suffix={
@@ -526,7 +526,7 @@ export const FixAddonBeforeShowClear = () => (
       style={{
         width: 300,
       }}
-      autofocus
+      autoFocus
       defaultValue="Semi Design"
       addonBefore="http://"
       showClear
@@ -905,6 +905,11 @@ export const TextAreaAutosize = () => {
   return (
     <div style={{ width: 200 }}>
       <TextArea autosize />
+      <TextArea autosize rows={2} />
+      <TextArea autosize={false} rows={2} />
+      <TextArea autosize={{ minRows: 1 }} />
+      <TextArea autosize={{ minRows: 1, maxRows: 3 }} onResize={({ height }) => console.log('onResize', height)}/>
+      <TextArea autosize={{ maxRows: 3 }} rows={1} />
     </div>
   )
 };
@@ -1010,3 +1015,56 @@ export const forwardRefFocus = () => {
     </div>
   </>
 )};
+
+export const TextAutoSizeResize = () => {
+  const [width, setWidth] = useState(800);
+
+  return (
+    <div>
+      <Space style={{ marginBottom: 20 }}>
+        <Button onClick={() => setWidth(100)}>width=100</Button>
+        <Button onClick={() => setWidth(1000)}>width=1000</Button>
+      </Space>
+      <div style={{ width, maxWidth: '100%' }}>
+        <TextArea autosize defaultValue='semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design ' />
+      </div>
+    </div>
+  )
+};
+
+export const FixInputAutoFocus = () => {
+  const longStr = 'semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design';
+  const inputRef = useRef();
+  const [selection, setSelection] = useState();
+  useEffect(() => {
+    const start = inputRef.current.selectionStart;
+    const end = inputRef.current.selectionEnd;
+    setSelection({ start, end, length: longStr.length });
+  }, []);
+  return (
+    <div>
+      <Input ref={inputRef} style={{ width: 200 }} autoFocus defaultValue={longStr} />
+      <div data-cy="start">start: {selection?.start}</div>
+      <div data-cy="end">end: {selection?.end}</div>
+    </div>
+  )
+};
+
+export const FixTextAreaAutoFocus = () => {
+  const inputRef = useRef();
+  const [selection, setSelection] = useState();
+  useEffect(() => {
+    const start = inputRef.current.selectionStart;
+    const end = inputRef.current.selectionEnd;
+    setSelection({ start, end });
+  }, []);
+  const longStr = 'semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design semi design';
+  return (
+    <div>
+      <TextArea ref={inputRef} style={{ width: 200 }} autoFocus defaultValue={longStr} />
+      <div data-cy="start">start: {selection?.start}</div>
+      <div data-cy="end">end: {selection?.end}</div>
+    </div>
+  )
+};
+

@@ -87,7 +87,9 @@ export default class monthCalendar extends BaseComponent<MonthCalendarProps, Mon
                 const clickOutsideHandler = (e: MouseEvent) => {
                     const cardInstance = this.cardRef && this.cardRef.get(key);
                     const cardDom = ReactDOM.findDOMNode(cardInstance);
-                    if (cardDom && !cardDom.contains(e.target as any)) {
+                    const target = e.target as Element;
+                    const path = e.composedPath && e.composedPath() || [target];
+                    if (cardDom && !cardDom.contains(target) && !path.includes(cardDom)) {
                         cb();
                     }
                 };
@@ -157,7 +159,7 @@ export default class monthCalendar extends BaseComponent<MonthCalendarProps, Mon
             }
         }
         if (!isEqual(prevEventKeys, nowEventKeys) || itemLimitUpdate || !isEqual(prevProps.displayValue, this.props.displayValue)) {
-            this.foundation.parseMonthlyEvents((itemLimit || this.props.events) as any);
+            this.foundation.parseMonthlyEvents(itemLimit);
         }
     }
 
@@ -200,6 +202,7 @@ export default class monthCalendar extends BaseComponent<MonthCalendarProps, Mon
     };
 
     renderEvents = (events: ParsedRangeEvent[]) => {
+        const { itemLimit } = this.state;
         if (!events) {
             return undefined;
         }
@@ -210,15 +213,17 @@ export default class monthCalendar extends BaseComponent<MonthCalendarProps, Mon
                 width: toPercent(width),
                 top: `${topInd}em`
             };
-            return (
-                <li
-                    className={`${cssClasses.PREFIX}-event-item ${cssClasses.PREFIX}-event-month`}
-                    key={key || `${ind}-monthevent`}
-                    style={style}
-                >
-                    {children}
-                </li>
-            );
+            if (topInd < itemLimit)
+                return (
+                    <li
+                        className={`${cssClasses.PREFIX}-event-item ${cssClasses.PREFIX}-event-month`}
+                        key={key || `${ind}-monthevent`}
+                        style={style}
+                    >
+                        {children}
+                    </li>
+                );
+            return null;
         });
         return list;
     };

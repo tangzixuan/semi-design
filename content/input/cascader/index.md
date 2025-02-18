@@ -1,6 +1,6 @@
 ---
 localeCode: zh-CN
-order: 21
+order: 31
 category: 输入类
 title:  Cascader 级联选择
 icon: doc-cascader
@@ -140,7 +140,11 @@ import { Cascader } from '@douyinfe/semi-ui';
 
 ### 可搜索的
 
-通过设置 `filterTreeNode` 属性可支持搜索功能。默认对 `label` 值进行搜索，可通过 `treeNodeFilterProp` 更改。
+通过设置 `filterTreeNode` 属性可支持搜索功能。
+
+默认对 `label` 值进行搜索（使用字符串的 includes 方法进行匹配，不区分大小写），可通过 `treeNodeFilterProp` 指定其他属性值进行搜索。
+如 `label` 为 ReactNode，可在 treeData 中使用其他字段存储纯文本，并通过 `treeNodeFilterProp` 指定该字段进行搜索。
+
 默认搜索结果只会展示叶子结点的路径，想要显示更多的结果，可以设置 `filterLeafOnly` 为 `false`。
 
 ```jsx live=true
@@ -188,6 +192,55 @@ import { Cascader, Typography } from '@douyinfe/semi-ui';
             ],
         }
     ];
+    const labelNodeTreeData = [
+        {
+            label: <Tooltip content="说明">浙江省</Tooltip>,
+            labelText: '浙江省',
+            value: 'zhejiang',
+            children: [
+                {
+                    label: <Tooltip content="说明">杭州市</Tooltip>,
+                    labelText: '杭州市',
+                    value: 'hangzhou',
+                    children: [
+                        {
+                            label: <Tooltip content="说明">西湖区</Tooltip>,
+                            labelText: '西湖区',
+                            value: 'xihu',
+                        },
+                        {
+                            label: <Tooltip content="说明">萧山区</Tooltip>,
+                            labelText: '萧山区',
+                            value: 'xiaoshan',
+                        },
+                        {
+                            label: <Tooltip content="说明">临安区</Tooltip>,
+                            labelText: '临安区',
+                            value: 'linan',
+                        },
+                    ],
+                },
+                {
+                    label: <Tooltip content="说明">宁波市</Tooltip>,
+                    labelText: '宁波市',
+                    value: 'ningbo',
+                    children: [
+                        {
+                            label: <Tooltip content="说明">海曙区</Tooltip>,
+                            labelText: '海曙区',
+                            value: 'haishu',
+                        },
+                        {
+                            label: <Tooltip content="说明">江北区</Tooltip>,
+                            labelText: '江北区',
+                            value: 'jiangbei',
+                        }
+                    ]
+                },
+            ],
+        }
+    ];
+
     return (
         <div>
             <Cascader
@@ -211,14 +264,26 @@ import { Cascader, Typography } from '@douyinfe/semi-ui';
             <Cascader
                 style={{ width: 300 }}
                 treeData={treeData}
-                placeholder="默认对label值进行搜索"
+                placeholder="filterLeafOnly=false"
                 filterTreeNode
                 filterLeafOnly={false}
+            />
+            <br/>
+            <br/>
+            <Typography.Title heading={6}>Label 为 ReactNode，指定其他属性进行搜索</Typography.Title>
+            <Cascader
+                style={{ width: 300 }}
+                treeData={labelNodeTreeData}
+                placeholder="Search for labelText"
+                filterTreeNode
+                treeNodeFilterProp='labelText'
             />
         </div>
     );
 };
 ```
+
+
 
 ### 可搜索的多选
 
@@ -438,7 +503,7 @@ import { Cascader, Typography, Checkbox } from '@douyinfe/semi-ui';
                 onClick={onCheck}
             > 
                 <Checkbox
-                    onClick={onCheck}
+                    onChange={onCheck}
                     indeterminate={checkStatus.halfChecked}
                     checked={checkStatus.checked}
                     style={{ marginRight: 8 }}
@@ -458,7 +523,7 @@ import { Cascader, Typography, Checkbox } from '@douyinfe/semi-ui';
             <p>鼠标 hover 到选项可查看被省略文本完整内容</p>
             <br />
             <Cascader
-                style={{ width: 300 }}
+                style={{ width: 320 }}
                 treeData={treeData}
                 placeholder="单选，输入 s 自定义搜索选项渲染结果"
                 filterTreeNode
@@ -467,7 +532,7 @@ import { Cascader, Typography, Checkbox } from '@douyinfe/semi-ui';
             <br />
             <Cascader
                 multiple
-                style={{ width: 300, marginTop: 20 }}
+                style={{ width: 320, marginTop: 20 }}
                 treeData={treeData}
                 placeholder="多选，输入 s 自定义搜索选项渲染结果"
                 filterTreeNode
@@ -477,6 +542,77 @@ import { Cascader, Typography, Checkbox } from '@douyinfe/semi-ui';
     );
 };
 
+```
+
+如果搜索结果中存在大量 Option，可以通过设置 virtualizeInSearch 开启搜索结果面板的虚拟化来优化性能，virtualizeInSearch 自 v2.44.0 提供。virtualizeInSearch 是一个包含下列值的对象：
+
+- height: Option 列表高度值
+- width: Option 列表宽度值
+- itemSize: 每行 Option 的高度
+
+```jsx live=true
+import React from 'react';
+import { Cascader, Checkbox, Typography } from '@douyinfe/semi-ui';
+
+() => {
+    const treeData = useMemo(() => (
+        ['通用', '场景'].map((label, m) => ({
+            label: label,
+            value: m,
+            children: new Array(100).fill(0).map((item, n)=> ({
+                value: `${m}-${n}`,
+                label: `${m}-${n} 第二级`,
+                children: new Array(20).fill(0).map((item, o)=> ({
+                    value: `${m}-${n}-${o}`,
+                    label: `${m}-${n}-${o} 第三级详细内容`,
+                })),
+            }))
+        }))
+    ), []);
+    
+    let virtualize = {
+        // 高度为面板默认高度为 180px 减去上下padding 2 * 8px
+        height: 172,
+        width: 320,
+        itemSize: 36, 
+    };
+
+    const filterRender = useCallback((props) => {
+        const { data, onCheck, checkStatus, className } = props;
+        return (
+            <div 
+                key={data.value}
+                className={className}
+                style={{ justifyContent: 'start', padding: '8px 16px 8px 12px', boxSizing: 'border-box' }}
+            >
+                <Checkbox
+                    onChange={onCheck}
+                    indeterminate={checkStatus.halfChecked}
+                    checked={checkStatus.checked}
+                    style={{ marginRight: 8 }}
+                />
+                <Typography.Text
+                    ellipsis={{ showTooltip: { opts: { style: { wordBreak: 'break-all' } } } }}
+                    style={{ maxWidth: 260 }}
+                >
+                    {data.map(item => item.label).join(' | ')}
+                </Typography.Text>
+            </div>
+        );
+    }, []);
+     
+    return (
+        <Cascader
+            multiple
+            filterTreeNode
+            style={{ width: 320 }}
+            treeData={treeData}
+            placeholder="输入 通用 or 场景 进行搜索"
+            virtualizeInSearch={virtualize}
+            filterRender={filterRender}
+        />
+    );
+};
 ```
 
 ### 限制标签展示数量
@@ -1380,6 +1516,56 @@ import { Cascader } from '@douyinfe/semi-ui';
 };
 ```
 
+### 节点选中关系
+
+版本：>= 2.71.0
+
+多选时，可以使用 `checkRelation` 来设置节点之间选中关系的类型，可选：'related'（默认）、'unRelated'。当选中关系为 'unRelated' 时，意味着节点之间的选中互不影响。
+
+```jsx live=true
+import React from 'react';
+import { Cascader } from '@douyinfe/semi-ui';
+() => {
+    const treeData = [
+        {
+            label: '亚洲',
+            value: 'Asia',
+            children: [
+                {
+                    label: '中国',
+                    value: 'China',
+                    children: [
+                        {
+                            label: '北京',
+                            value: 'Beijing',
+                        },
+                        {
+                            label: '上海',
+                            value: 'Shanghai',
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            label: '北美洲',
+            value: 'North America',
+        }
+    ];
+    return (
+        <Cascader
+            multiple
+            defaultValue={[
+                ['Asia'],
+                ['Asia', 'China', 'Beijing']
+            ]}
+            checkRelation='unRelated'
+            style={{ width: 300 }}
+            treeData={treeData}
+        />
+    );
+};
+```
 
 ### 动态更新数据
 
@@ -1595,7 +1781,7 @@ interface TriggerRenderProps {
     disabled: boolean;
     /**
      * 已选中的 node 在 treeData 中的层级位置，如下例子，
-     * 当选中浙江省-杭州市-萧山区时，此处 value 为 '0-0-0'
+     * 当选中浙江省-杭州市-萧山区时，此处 value 为 '0-0-1'
      */
     value?: string | Set<string>;
     /* 当前 Input 框的输入值 */
@@ -1736,6 +1922,7 @@ function Demo() {
 | bottomSlot           | 底部插槽                                                                                                                                                | ReactNode                                                                                 | -                              | 1.27.0 |
 | borderless        | 无边框模式  >=2.33.0                                                                                                                                     | boolean                         |           |
 | changeOnSelect       | 是否允许选择非叶子节点                                                                                                                                         | boolean                                                                                   | false                          | -      |
+| checkRelation | 多选时，节点之间选中状态的关系，可选：'related'、'unRelated'。  | string | 'related' | v2.71.0 |
 | className            | 选择框的 className 属性                                                                                                                                   | string                                                                                    | -                              | -      |
 | clearIcon            | 可用于自定义清除按钮, showClear为true时有效                                                                                                                       | ReactNode                                                                                 | -                              | 2.25.0 |
 | defaultOpen          | 设置是否默认打开下拉菜单                                                                                                                                        | boolean                                                                                   | false                          | -      |
@@ -1746,6 +1933,7 @@ function Demo() {
 | dropdownMargin       | 下拉菜单计算溢出时的增加的冗余值，详见[issue#549](https://github.com/DouyinFE/semi-design/issues/549)，作用同 Tooltip margin                                               | object\|number                                                                            | -                              | 2.25.0 |
 | dropdownClassName    | 下拉菜单的 className 属性                                                                                                                                  | string                                                                                    | -                              | -      |
 | dropdownStyle        | 下拉菜单的样式                                                                                                                                             | object                                                                                    | -                              | -      |
+| expandIcon | 自定义展开 icon | ReactNode | - | 2.68.0 |
 | emptyContent         | 当搜索无结果时展示的内容                                                                                                                                        | ReactNode                                                                                 | `暂无数据`                     | -      |
 | filterLeafOnly       | 搜索结果是否只展示叶子结点路径                                                                                                                                     | boolean                                                                                   | true                           | 1.26.0 |
 | filterRender         | 自定义渲染筛选后的选项                                                                                                                                         | (props: FilterRenderProps) => ReactNode;                                                  | -                              | 2.28.0 |
@@ -1767,6 +1955,7 @@ function Demo() {
 | preventScroll        | 指示浏览器是否应滚动文档以显示新聚焦的元素，作用于组件内的 focus 方法                                                                                                              | boolean                                                                                   | -                              | 2.15.0 |
 | restTagsPopoverProps | Popover 的配置属性，可以控制 position、zIndex、trigger 等，具体参考[Popover](/zh-CN/show/popover#API%20%E5%8F%82%E8%80%83)                                            | PopoverProps                                                                              | {}                             | 1.28.0 |
 | searchPlaceholder    | 搜索框默认文字                                                                                                                                             | string                                                                                    | -                              | -      |
+| searchPosition | 设置搜索框的位置，可选: `trigger`、`custom` | string| `trigger` | 2.54.0 |
 | separator            | 自定义分隔符，包括：搜索时显示在下拉框的内容以及单选时回显到 Trigger 的内容的分隔符                                                                                                      | string                                                                                    | `/`                            | 2.2.0  |
 | showClear            | 是否展示清除按钮                                                                                                                                            | boolean                                                                                   | false                          | 0.35.0 |
 | showNext             | 设置展开 Dropdown 子菜单的方式，可选: `click`、`hover`                                                                                                            | string                                                                                    | `click`                        | 1.29.0 |
@@ -1782,6 +1971,7 @@ function Demo() {
 | triggerRender        | 自定义触发器渲染方法                                                                                                                                          | (props: TriggerRenderProps) => ReactNode                                                  | -                              | 0.34.0 |
 | validateStatus       | trigger 的校验状态，仅影响展示样式。可选: default、error、warning                                                                                                     | string                                                                                    | `default`                      | -      |
 | value                | （受控）选中的条目                                                                                                                                           | string\|number\|CascaderData\|(string\|number\|CascaderData)[]                            | -                              | -      |
+| virtualizeInSearch   | 搜索列表虚拟化，用于大量树节点的情况，由 height, width, itemSize 组成 | Object | - | - | - |
 | zIndex               | 下拉菜单的 zIndex                                                                                                                                        | number                                                                                    | 1030                           | -      |
 | enableLeafClick      | 多选时，是否启动点击叶子节点选项触发勾选                                                                                                                                | boolean                                                                                   | false                          | 2.2.0  |
 | onBlur               | 失焦 Cascader 的回调                                                                                                                                     | (e: MouseEvent) => void                                                                   | -                              | -      |
@@ -1817,6 +2007,7 @@ function Demo() {
 | open        | 调用时可以手动展开下拉列表          | v2.30.0 |
 | focus       | 调用时可以手动聚焦                 | v2.34.0 |
 | blur        | 调用时可以手动失焦                 | v2.34.0 |
+| search(value: string) | 手动触发搜索，需同时设置 filterTreeNode 开启搜索，searchPosition 为 `custom` 自定义展示搜素框  | v2.54.0 |
 
 ## Accessibility
 

@@ -275,7 +275,7 @@ export default class Pagination extends BaseComponent<PaginationProps, Paginatio
         // rtl modify the default position
         const { direction } = this.context;
         const defaultPopoverPosition = direction === 'rtl' ? 'bottomRight' : 'bottomLeft';
-        const { showSizeChanger, popoverPosition = defaultPopoverPosition, disabled } = this.props;
+        const { showSizeChanger, popoverPosition = defaultPopoverPosition, disabled, popoverZIndex } = this.props;
         const { pageSize } = this.state;
         const switchCls = classNames(`${prefixCls}-switch`);
         if (!showSizeChanger) {
@@ -300,9 +300,10 @@ export default class Pagination extends BaseComponent<PaginationProps, Paginatio
                     disabled={disabled}
                     onChange={newPageSize => this.foundation.changePageSize(newPageSize)}
                     value={pageSize}
-                    key={pageSize}
+                    key={pageSize + pageSizeToken}
                     position={popoverPosition || 'bottomRight'}
                     clickToHide
+                    zIndex={popoverZIndex}
                     dropdownClassName={`${prefixCls}-select-dropdown`}
                 >
                     {options}
@@ -373,6 +374,7 @@ export default class Pagination extends BaseComponent<PaginationProps, Paginatio
                 i < 3 ? (content = restLeftPageList) : (content = restRightPageList);
                 return (
                     <Popover
+                        rePosKey={this.props.currentPage}
                         trigger="hover"
                         // onVisibleChange={visible=>this.handleRestHover(visible, i < 3 ? 'left' : 'right')}
                         content={this.renderRestPageList(content)}

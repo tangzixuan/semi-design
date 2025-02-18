@@ -5,6 +5,9 @@ $basicType: #{$module}-basic;
 .#{$basicType} {
 
     &.#{$module}-horizontal {
+        display: flex;
+        flex-flow: row nowrap;
+
         &.#{$module}-hasline {
             .#{$item}-title {
 
@@ -20,9 +23,6 @@ $basicType: #{$module}-basic;
                 }
             }
         }
-
-        display: flex;
-        flex-flow: row nowrap;
 
         .#{$item} {
             padding-left: $spacing-steps_basic_item-paddingLeft;
@@ -83,6 +83,10 @@ $basicType: #{$module}-basic;
     &.#{$module}-vertical {
         display: flex;
         flex-flow: column nowrap;
+
+        .#{$item}-icon {
+            box-sizing: content-box;
+        }
 
         &.#{$module}-small {
             .#{$item} {
@@ -167,11 +171,14 @@ $basicType: #{$module}-basic;
         vertical-align: top;
         overflow: hidden;
         flex: 1;
-        cursor: pointer;
         transition: color $transition_duration-steps_item_title-text $transition_function-steps_item_title-text $transition_delay-steps_item_title-text, //step文字color的transition变化
         background-color $transition_duration-steps_item-backgroundColor $transition_function-steps_item_backgroundColor $transition_delay-steps_item_backgroundColor; //step backgroundColor 的transition变化
         
         transform:scale($transform_scale-step-item);
+
+        &-clickable {
+            cursor: pointer;
+        }
 
         &-hover:hover {
 
@@ -226,7 +233,7 @@ $basicType: #{$module}-basic;
             color: $color-steps_main-text-default;
             vertical-align: top;
             padding-right: $spacing-steps_basic_item_title-paddingRight;
-            padding-bottom: $spacing-steps_basic_item_title-paddingBottom;
+            margin-bottom: $spacing-steps_basic_item_title-paddingBottom;
             transition: color $transition_duration-steps_item_title-text $transition_function-steps_item_title-text $transition_delay-steps_item_title-text; //step文字color的transition变化
        
         }

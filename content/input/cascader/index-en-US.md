@@ -1,6 +1,6 @@
 ---
 localeCode: en-US
-order: 21
+order: 31
 category: Input
 title:  Cascader
 subTitle: Cascade
@@ -138,7 +138,11 @@ import { Cascader } from '@douyinfe/semi-ui';
 
 ### Searchable
 
-Use `filterTreeNode` to support search input. By default it searches the `value` property of the data. You can use `treeNodeFilterProp` to set another property to search or pass in a function to `filterTreeNode` to customize search behavior.
+Use `filterTreeNode` to support search input. 
+
+By default, the `label` value is searched (using the includes method of the string for matching, case-insensitive). You can specify other attribute values ​​​​through `treeNodeFilterProp` to search. For example, If `label` is ReactNode, you can use other fields in treeData to store plain text, and specify the field for search through `treeNodeFilterProp`.
+
+The default search results will only display the paths of leaf nodes. If you want to display more results, you can set `filterLeafOnly` to `false`.
 
 ```jsx live=true
 import React from 'react';
@@ -184,10 +188,56 @@ import { Cascader } from '@douyinfe/semi-ui';
                 }
             ],
         }];
+    const labelNodeTreeData = [{
+        label: <Tooltip content="Other info">Impressionism</Tooltip>,
+        labelText: 'Impressionism',
+        value: 'impressionism',
+        children: [
+            {
+                label: <Tooltip content="Other info">Visual Arts</Tooltip>,
+                labelText: 'Visual Arts',
+                value: 'visualArts',
+                children: [
+                    {
+                        label: <Tooltip content="Other info">Claude Monet</Tooltip>,
+                        labelText: 'Claude Monet',
+                        value: 'Monet',
+                    },
+                    {
+                        label: <Tooltip content="Other info">'Pierre-Auguste Renoir</Tooltip>,
+                        labelText: 'Pierre-Auguste Renoir',
+                        value: 'Renoir',
+                    },
+                    {
+                        label: <Tooltip content="Other info">Édouard Manet</Tooltip>,
+                        labelText: 'Édouard Manet',
+                        value: 'Manet',
+                    },
+                ],
+            },
+            {
+                label: <Tooltip content="Other info">Music</Tooltip>,
+                labelText: 'Music',
+                value: 'music',
+                children: [
+                    {
+                        label: <Tooltip content="Other info">Claude Debussy</Tooltip>,
+                        labelText: 'Claude Debussy',
+                        value: 'Debussy',
+                    },
+                    {
+                        label: <Tooltip content="Other info">Maurice Ravel</Tooltip>,
+                        labelText: 'Maurice Ravel',
+                        value: 'Ravel',
+                    }
+                ]
+            }
+        ],
+    }];
     return (
         <div>
             <Cascader
-                style={{ width: 400 }}
+                style={{ width: 300 }}
                 treeData={treeData}
                 placeholder="Search in label by default"
                 filterTreeNode
@@ -195,11 +245,31 @@ import { Cascader } from '@douyinfe/semi-ui';
             <br/>
             <br/>
             <Cascader
-                style={{ width: 400 }}
+                style={{ width: 300 }}
                 treeData={treeData}
                 placeholder="Search in value"
                 filterTreeNode
                 treeNodeFilterProp='value'
+            />
+             <br/>
+            <br/>
+            <Typography.Title heading={6}>filterLeafOnly=false:</Typography.Title>
+            <Cascader
+                style={{ width: 300 }}
+                treeData={treeData}
+                placeholder="filterLeafOnly=false"
+                filterTreeNode
+                filterLeafOnly={false}
+            />
+            <br/>
+            <br/>
+            <Typography.Title heading={6}>Label is ReactNode, specify other attributes to search</Typography.Title>
+            <Cascader
+                style={{ width: 300 }}
+                treeData={labelNodeTreeData}
+                placeholder="Search for labelText"
+                filterTreeNode
+                treeNodeFilterProp='labelText'
             />
         </div>
     );
@@ -429,11 +499,11 @@ import { Cascader, Typography, Checkbox } from '@douyinfe/semi-ui';
                 className={className}
                 style={{ justifyContent: 'flex-start' }}
                 role="treeitem"
-                onClick={onClick}
+                onClick={onCheck}
                 onKeyPress={onKeyPress}
             > 
                 <Checkbox
-                    onClick={onClick}
+                    onChange={onCheck}
                     indeterminate={checkStatus.halfChecked}
                     checked={checkStatus.checked}
                     style={{ marginRight: 8 }}
@@ -472,6 +542,77 @@ import { Cascader, Typography, Checkbox } from '@douyinfe/semi-ui';
     );
 };
 
+```
+
+If there are a lot of options in the search results, you can optimize performance by setting virtualizeInSearch to enable the virtualization of the search result panel. virtualizeInSearch has been available since v2.44.0. virtualizeInSearch is an object containing the following values:
+
+- height: Option list height value
+- width: Option list width value
+- itemSize: The height of each row of Option
+
+```jsx live=true
+import React from 'react';
+import { Cascader, Checkbox, Typography } from '@douyinfe/semi-ui';
+
+() => {
+    const treeData = useMemo(() => (
+        ['Generic', 'Scene'].map((label, m) => ({
+            label: label,
+            value: m,
+            children: new Array(100).fill(0).map((item, n)=> ({
+                value: `${m}-${n}`,
+                label: `${m}-${n} level one`,
+                children: new Array(20).fill(0).map((item, o)=> ({
+                    value: `${m}-${n}-${o}`,
+                    label: `${m}-${n}-${o} level two detail info`,
+                })),
+            }))
+        }))
+    ), []);
+    
+    let virtualize = {
+        // The height is the panel's default height of 180px minus the upper and lower padding 2 * 8px
+        height: 172,
+        width: 320,
+        itemSize: 36, 
+    };
+
+    const filterRender = useCallback((props) => {
+        const { data, onCheck, checkStatus, className } = props;
+        return (
+            <div 
+                key={data.value}
+                className={className}
+                style={{ justifyContent: 'start', padding: '8px 16px 8px 12px', boxSizing: 'border-box' }}
+            >
+                <Checkbox
+                    onChange={onCheck}
+                    indeterminate={checkStatus.halfChecked}
+                    checked={checkStatus.checked}
+                    style={{ marginRight: 8 }}
+                />
+                <Typography.Text
+                    ellipsis={{ showTooltip: { opts: { style: { wordBreak: 'break-all' } } } }}
+                    style={{ maxWidth: 260 }}
+                >
+                    {data.map(item => item.label).join(' | ')}
+                </Typography.Text>
+            </div>
+        );
+    }, []);
+     
+    return (
+        <Cascader
+            multiple
+            filterTreeNode
+            style={{ width: 320 }}
+            treeData={treeData}
+            placeholder="Enter generic or scene to search"
+            virtualizeInSearch={virtualize}
+            filterRender={filterRender}
+        />
+    );
+};
 ```
 
 ### Limit Tags Displayed
@@ -1396,6 +1537,63 @@ import { Cascader } from '@douyinfe/semi-ui';
 };
 ```
 
+### Checked RelationShip
+
+Version: >= 2.71.0
+
+In multiple, `checkRelation` can be used to set the type of node selection relationship, optional: 'related' (default), 'unRelated'. When the selection relationship is 'unRelated', it means that selections between nodes do not affect each other.
+
+```jsx live=true
+import React from 'react';
+import { Cascader } from '@douyinfe/semi-ui';
+() => {
+    const treeData = [
+        {
+            label: 'Asia',
+            value: 'Asia',
+            key: '0',
+            children: [
+                {
+                    label: 'China',
+                    value: 'China',
+                    key: '0-0',
+                    children: [
+                        {
+                            label: 'Beijing',
+                            value: 'Beijing',
+                            key: '0-0-0',
+                        },
+                        {
+                            label: 'Shanghai',
+                            value: 'Shanghai',
+                            key: '0-0-1',
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            label: 'North America',
+            value: 'North America',
+            key: '1',
+        }
+    ];
+    
+    return (
+        <Cascader
+            multiple
+            defaultValue={[
+                ['Asia'],
+                ['Asia', 'China', 'Beijing']
+            ]}
+            checkRelation='unRelated'
+            style={{ width: 300 }}
+            treeData={treeData}
+        />
+    );
+};
+```
+
 ### Dynamic Update of Data
 
 ```jsx live=true
@@ -1754,6 +1952,7 @@ function Demo() {
 | borderless        | borderless mode  >=2.33.0                                                                                                                                                                                                                     | boolean                         |           |
 | bottomSlot | bottom slot                                                                                                                                                                                                                                   | ReactNode | - |  1.27.0 |
 | changeOnSelect | Toggle whether non-leaf nodes are selectable                                                                                                                                                                                                  | boolean | false | - |
+| checkRelation | In multiple, the relationship between the checked states of the nodes, optional: 'related'、'unRelated'.  | string | 'related' | v2.71.0 |
 | className | ClassName                                                                                                                                                                                                                                     | string | - | - |
 | clearIcon | Can be used to customize the clear button, valid when showClear is true                                                                                                                                                                       | ReactNode | - | 2.25.0 |
 | defaultOpen | Set whether to open the dropDown by default                                                                                                                                                                                                   | boolean | false | - |
@@ -1764,6 +1963,7 @@ function Demo() {
 | dropdownClassName  | ClassName property for the drop-down menu                                                                                                                                                                                                     | string | - | - |
 | dropdownMargin | Popup layer calculates the size of the safe area when the current direction overflows, used in scenes covered by fixed elements, more detail refer to [issue#549](https://github.com/DouyinFE/semi-design/issues/549), same as Tooltip margin | object\|number | - | 2.25.0 |
 | dropdownStyle | Inline style of drop-down menu                                                                                                                                                                                                                | object  | - | -  |
+| expandIcon | customize expand icon | ReactNode | - | 2.68.0 |
 | emptyContent | Content displayed when the search has no result                                                                                                                                                                                               | ReactNode | `No result`  | - |
 | filterLeafOnly | Whether the search results only show the path of leaf nodes                                                                                                                                                                                   | boolean  | true | 1.26.0  |
 | filterRender | Used to render filtered options                                                                                                                                                                                                               | (props: FilterRenderProps) => ReactNode; | - | 2.28.0 |
@@ -1784,6 +1984,7 @@ function Demo() {
 | preventScroll | Indicates whether the browser should scroll the document to display the newly focused element, acting on the focus method inside the component, excluding the component passed in by the user                                                 | boolean | - | 2.15.0 |
 |restTagsPopoverProps | The configuration properties of the [Popover](/en-US/show/popover#API%20Reference)                                                                                                                                                            |PopoverProps   | {}  |1.28.0|
 | searchPlaceholder  | Placeholder for search input                                                                                                                                                                                                                  | string | - | -  |
+| searchPosition | Set the position of the search box,  `trigger` or `custom` | string| `trigger` | 2.54.0 |
 | separator  | Custom separator, including: the separator of the content displayed in the dropdown during search and displayed in the Trigger during single selection                                                                                        | string| ` / ` | 2.2.0 |
 | showClear | Toggle whether to show clear button                                                                                                                                                                                                           | boolean  | false | 0.35.0 |
 | showNext| Set the way to expand the Dropdown submenu, one of: `click`、`hover`                                                                                                                                                                           | string |`click`|1.29.0|
@@ -1799,6 +2000,7 @@ function Demo() {
 | triggerRender | Method to create a custom trigger                                                                                                                                                                                                             | (props: TriggerRenderProps) => ReactNode | - | 0.34.0 |
 | value | Selected value (controlled mode)                                                                                                                                                                                                              | string\|number\|CascaderData\|(string\|number\|CascaderData)[][]  | - | -  |
 | validateStatus | The validation status of the trigger only affects the display style. Optional: default、error、warning                                                                                                                                          | string | `default` | - |
+| virtualizeInSearch  | Search result list virtualization, used when there are a large number of tree nodes, composed of height, width,itemSize  | Object | -  | -  | - |
 | zIndex | zIndex for dropdown menu                                                                                                                                                                                                                      | number | 1030 | - |
 | enableLeafClick | Multiple mode, click the leaf option enable trigger check                                                                                                                                                                                     | boolean | false | 2.2.0 |
 | onBlur | Out of focus Cascader's callback                                                                                                                                                                                                              | (e: MouseEvent) => void | - | - |
@@ -1833,6 +2035,7 @@ Some internal methods provided by Select can be accessed through ref:
 | open        | Manually open dropdown list     | v2.30.0 |
 | focus       | Manually focus                  | v2.34.0 |
 | blur        | Manually blur                   | v2.34.0 |
+| search(value: string) | To manually trigger the search, you need to set filterTreeNode to enable search, and searchPosition to `custom` to customize the display search box.  | v2.54.0 |
 
 ## Accessibility
 

@@ -10,7 +10,7 @@
 <div align="center">
 
 [![LICENSE][license-badge]][license-url] [![NPM][npm-badge]][npm-url] [![FIGMA][figma-badge]][figma-url] ![Design Token][Design Token] 
-[![BUILD-JS][build-js-badge]][build-js-url] [![BUILD-CSS][build-css-badge]][build-css-url] [![CODECOV][codecov-badge]][codecov-url] [![Chromatic][chromatic-badge]][chromatic-url] [![Cypress][cypress-badge]][cypress-url]
+[![CODECOV][codecov-badge]][codecov-url] [![Chromatic][chromatic-badge]][chromatic-url] [![Cypress][cypress-badge]][cypress-url]
 [![Twitter Follow](https://img.shields.io/twitter/follow/SemiDesignUI?style=social)](https://twitter.com/SemiDesignUI)
 
 
@@ -45,7 +45,7 @@
 
 # 🎉 特性
 
-- 💪 60+高质量组件
+- 💪 70+高质量组件
 - 💅 Code2Design，根据不同主题自动生成 Figma UI Kit，保持代码与设计同源
 - 🚀 强大的 D2C （Design2Code）支持，Figma 设计稿一键转出真实代码，快速构建应用
 - 💕 完善的无障碍支持，为所有组件提供遵循 W3C 标准的键盘交互、焦点管理和语义化
@@ -54,6 +54,7 @@
 - ⚙️ 稳定的质量保障，覆盖单元测试、E2E测试、视觉回归测试等多种测试手段
 - 🥳 支持 SSR
 - 👏 使用 TypeScript, 良好的类型定义，基于 Foundation / Adapter 架构，源码易于阅读 / 贡献
+- 📦 轻松兼容 web components，提供完整适配方案，更适合用于构建 SDK、浏览器插件等需要 DOM 隔离的场景
 
 # 🔥 安装
 
@@ -98,7 +99,7 @@ root.render(<App />);
 
 # 🎨 DSM 设计系统管理
 
-基于 Semi UI 定制你的专属设计系统, 提供高达 2700+ Token 允许你定义每一处细节. 并时刻在 Figma 与主题商店间保持同步。
+基于 Semi UI 定制你的专属设计系统, 提供高达 3000+ Token 允许你定义每一处细节. 并时刻在 Figma 与主题商店间保持同步。
 
 ![dsmintro](https://lf3-static.bytednsdoc.com/obj/eden-cn/ptlz_zlp/ljhwZthlaukjlkulzlp/github/dsmintro.png)
 
@@ -147,6 +148,17 @@ Semi UI 支持所有主流浏览器。
 <a href="https://www.cypress.io/"><img src="https://user-images.githubusercontent.com/26477537/147624641-1274a91d-bc4c-463e-af1a-dbf15de54c49.png" width="90" height="30" alt="Cypress" /></a>
 
 感谢 [Cypress](https://www.cypress.io/) 提供 E2E 测试。
+
+<div>
+  <a href="https://github.com/VisActor#gh-light-mode-only" target="_blank">
+    <img alt="VisActor Logo" height="60" src="https://lf9-dp-fe-cms-tos.byteorg.com/obj/bit-cloud/visactor/logo_500_200_light.svg"/>
+  </a>
+  <a href="https://github.com/VisActor#gh-dark-mode-only" target="_blank">
+    <img alt="VisActor Logo" height="60" src="https://lf9-dp-fe-cms-tos.byteorg.com/obj/bit-cloud/visactor/logo_500_200_dark.svg"/>
+  </a>
+</div>
+
+感谢 [VisActor](https://www.visactor.com/) 提供数据可视化解决方案。
 
 ## 👐 参与共建
 Semi Design 欢迎社区开发者参与共建，衷心感谢每一位协作者的付出

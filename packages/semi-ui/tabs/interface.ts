@@ -1,8 +1,10 @@
 import React, { ComponentType, CSSProperties, MouseEvent, ReactNode } from 'react';
 import { Motion } from '../_base/base';
-import TabBar from './TabBar';
+import TabBar, { OverflowItem } from './TabBar';
+import { DropdownProps } from "../dropdown";
+import { OverflowListProps } from "../overflowList";
 
-export type TabType = 'line' | 'card' | 'button';
+export type TabType = 'line' | 'card' | 'button' | 'slash';
 export type TabSize = 'small' | 'medium' | 'large';
 export type TabPosition = 'top' | 'left';
 
@@ -14,6 +16,10 @@ export interface PlainTab {
     closable?: boolean
 }
 
+interface TabsDropDownProps {
+    start: DropdownProps;
+    end: DropdownProps
+}
 
 export interface TabsProps {
     activeKey?: string;
@@ -27,6 +33,7 @@ export interface TabsProps {
     onChange?: (activeKey: string) => void;
     onTabClick?: (activeKey: string, e: MouseEvent<Element>) => void;
     renderTabBar?: (tabBarProps: TabBarProps, defaultTabBar: typeof TabBar) => ReactNode;
+    showRestInDropdown?: boolean;
     size?: TabSize;
     style?: CSSProperties;
     tabBarClassName?: string;
@@ -37,7 +44,13 @@ export interface TabsProps {
     tabPosition?: TabPosition;
     type?: TabType;
     onTabClose?: (tabKey: string) => void;
-    preventScroll?: boolean
+    preventScroll?: boolean;
+    more?: number | { count: number; render?: () => ReactNode; dropdownProps?: DropdownProps };
+    onVisibleTabsChange?: TabBarProps["onVisibleTabsChange"];
+    visibleTabsStyle?: TabBarProps['visibleTabsStyle'];
+    arrowPosition?: TabBarProps['arrowPosition'];
+    renderArrow?: TabBarProps['renderArrow'];
+    dropdownProps?: TabsDropDownProps
 }
 
 export interface TabBarProps {
@@ -46,6 +59,7 @@ export interface TabBarProps {
     collapsible?: boolean;
     list?: Array<PlainTab>;
     onTabClick?: (activeKey: string, event: MouseEvent<Element>) => void;
+    showRestInDropdown?: boolean;
     size?: TabSize;
     style?: CSSProperties;
     tabBarExtraContent?: ReactNode;
@@ -55,7 +69,13 @@ export interface TabBarProps {
     dropdownStyle?: CSSProperties;
     closable?: boolean;
     deleteTabItem?: (tabKey: string, event: MouseEvent<Element>) => void;
-    handleKeyDown?: (event: React.KeyboardEvent, itemKey: string, closable: boolean) => void
+    handleKeyDown?: (event: React.KeyboardEvent, itemKey: string, closable: boolean) => void;
+    more?: TabsProps['more'];
+    onVisibleTabsChange?: (visibleState: Map<string, boolean>) => void;
+    visibleTabsStyle?: CSSProperties;
+    arrowPosition?: OverflowListProps['overflowRenderDirection'];
+    renderArrow?: (items: OverflowItem[], pos: "start"|"end", handleArrowClick: () => void, defaultNode: ReactNode) => ReactNode;
+    dropdownProps?: TabsDropDownProps
 }
 
 export interface TabPaneProps {
@@ -85,6 +105,6 @@ export interface TabContextValue {
     panes?: Array<PlainTab>;
     tabPaneMotion?: boolean;
     tabPosition?: TabPosition;
-    prevActiveKey?: string|null;
+    prevActiveKey?: string | null;
     forceDisableMotion?: boolean
 }

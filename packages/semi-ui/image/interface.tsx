@@ -11,7 +11,7 @@ export interface ImageStates {
     previewVisible: boolean
 }
 
-export interface ImageProps extends BaseProps{
+export interface ImageProps extends BaseProps, Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'onLoad' | 'onError'> {
     src?: string;
     width?: string | number;
     height?: string | number;
@@ -21,10 +21,13 @@ export interface ImageProps extends BaseProps{
     preview?: boolean | PreviewProps;
     onError?: (event: Event) => void;
     onLoad?: (event: Event) => void;
-    crossOrigin?: "anonymous"| "use-credentials";
+    onClick?: (event: any) => void;
+    crossOrigin?: "anonymous" | "use-credentials";
     children?: ReactNode;
     imageID?: number;
-    setDownloadName?: (src: string) => string
+    setDownloadName?: (src: string) => string;
+    imgStyle?: React.CSSProperties;
+    imgCls?: string
 }
 
 export interface PreviewProps extends BaseProps {
@@ -56,7 +59,11 @@ export interface PreviewProps extends BaseProps {
     disableDownload?: boolean;
     zIndex?: number;
     children?: ReactNode;
-    crossOrigin?: "anonymous"| "use-credentials";
+    crossOrigin?: "anonymous" | "use-credentials";
+    maxZoom?: number;
+    minZoom?: number;
+    previewCls?: string;
+    previewStyle?: React.CSSProperties;
     renderHeader?: (info: any) => ReactNode;
     renderPreviewMenu?: (props: MenuProps) => ReactNode;
     getPopupContainer?: () => HTMLElement;
@@ -70,15 +77,18 @@ export interface PreviewProps extends BaseProps {
     onRatioChange?: (type: RatioType) => void;
     onRotateLeft?: (angle: number) => void;
     onDownload?: (src: string, index: number) => void;
+    onDownloadError?: (src: string) => void;
     setDownloadName?: (src: string) => string
 }
+
+export interface PreviewInnerProps extends Omit<PreviewProps, "previewCls" | "previewStyle"> { }
 
 export interface MenuProps {
     min?: number;
     max?: number;
     step?: number;
     curPage?: number;
-    totalNum?: number; 
+    totalNum?: number;
     zoom?: number;
     ratio?: RatioType;
     disabledPrev?: boolean;
@@ -114,11 +124,12 @@ export interface SliderProps {
 }
 
 export interface HeaderProps {
+    closable: boolean;
     renderHeader?: (info: any) => ReactNode;
     title?: string;
     titleStyle?: React.CSSProperties;
     className?: string;
-    onClose?: () => void
+    onClose?: (e: React.MouseEvent<HTMLElement>) => void
 }
 
 export interface FooterProps extends SliderProps {
@@ -139,6 +150,7 @@ export interface FooterProps extends SliderProps {
     adaptiveTip?: string;
     originTip?: string;
     showTooltip?: boolean;
+    zIndex?: number;
     onZoomIn?: (zoom: number) => void;
     onZoomOut?: (zoom: number) => void;
     onPrev?: () => void;
@@ -146,28 +158,29 @@ export interface FooterProps extends SliderProps {
     onAdjustRatio?: (type: RatioType) => void;
     onRotate?: (direction: string) => void;
     onDownload?: () => void;
-    renderPreviewMenu?: (props: MenuProps) => ReactNode
+    renderPreviewMenu?: (props: MenuProps) => ReactNode;
+    forwardRef?: React.RefObject<HTMLElement>
 }
 
 export interface PreviewImageProps {
     src?: string;
     rotation?: number;
     style?: React.CSSProperties;
-    maxZoom?: number;
-    minZoom?: number;
-    zoomStep?: number;
+    // maxZoom?: number;
+    // minZoom?: number;
+    // zoomStep?: number;
     zoom?: number;
     ratio?: RatioType;
     disableDownload?: boolean;
     clickZoom?: number;
-    crossOrigin?: "anonymous"| "use-credentials";
+    crossOrigin?: "anonymous" | "use-credentials";
     setRatio?: (type: RatioType) => void;
     onZoom?: (zoom: number) => void;
     onLoad?: (src: string) => void;
     onError?: (src: string) => void
 }
 
-export interface ImageOffset {
+export interface ImageTranslate {
     x: number;
     y: number
 }
@@ -176,10 +189,8 @@ export interface PreviewImageStates {
     loading: boolean;
     width: number;
     height: number;
-    offset: ImageOffset;
-    currZoom: number;
-    top: number;
-    left: number
+    translate: ImageTranslate;
+    currZoom: number
 }
 
 export interface DragDirection {

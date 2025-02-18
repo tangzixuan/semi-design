@@ -14,6 +14,9 @@ const local: Locale = {
         confirm: '確認する',
         cancel: 'キャンセル',
     },
+    Tabs: {
+        more: "もっと"
+    },
     TimePicker: {
         placeholder: {
             time: '時間を選択してください',
@@ -98,7 +101,10 @@ const local: Locale = {
     },
     Table: {
         emptyText: 'データがありません',
-        pageText: '第 ${currentStart} 条から第 ${currentEnd} 条まで表示します。計 ${total} 条',
+        pageText: '${total}件のうち、${currentStart}～${currentEnd}件目を表示しています',
+        descend: 'クリックして降順',
+        ascend: 'クリックして昇順',
+        cancelSort: 'ソートのキャンセル',
     },
     Select: {
         emptyText: 'データがありません',
@@ -167,6 +173,15 @@ const local: Locale = {
         downloadTip: 'ダウンロード',
         adaptiveTip: 'ページに適応',
         originTip: '元のサイズ',
+    },
+    Chat: {
+        deleteConfirm: 'このセッションを削除してもよろしいですか？',
+        clearContext: 'コンテキストを削除しました',
+        copySuccess: '正常にコピーされました',
+        stop: 'とめる',
+        copy: 'コピー',
+        copied: 'コピーしました',
+        dropAreaText: 'ファイルをここに置いてください',
     },
 };
 

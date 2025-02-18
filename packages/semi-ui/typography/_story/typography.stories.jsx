@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import withPropsCombinations from 'react-storybook-addon-props-combinations';
 
 import Icon from '../../icons';
 import Typography from '../index';
 import { IconLink, IconTick, IconSetting } from '@douyinfe/semi-icons';
+import {HugeData} from "./HugeData";
+import { Tooltip } from '@douyinfe/semi-ui'
 
 export default {
   title: 'Typography'
@@ -121,7 +123,7 @@ TextIcon.story = {
 export const _Paragraph = () => (
   <div>
     <Paragraph>
-      Semi Design 是由互娱社区前端团队与 UED
+      Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。
       <br />
@@ -139,7 +141,7 @@ export const _Paragraph = () => (
     </Paragraph>
     <br />
     <Paragraph spacing="extended">
-      Semi Design 是由互娱社区前端团队与 UED
+      Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。
       <br />
@@ -161,14 +163,14 @@ export const _Paragraph = () => (
 export const EllipsisSingle = () => (
   <div>
     <Paragraph ellipsis style={{ width: 350 }}>
-      这是一个单行截断的例子： Semi Design 是由互娱社区前端团队与 UED
+      这是一个单行截断的例子： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
     <br />
     <Paragraph ellipsis={{ expandable: true }} style={{ width: 350 }}>
-      单行截断并且支持展开：Semi Design 是由互娱社区前端团队与 UED
+      单行截断并且支持展开：Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -179,21 +181,21 @@ export const EllipsisSingle = () => (
     </Paragraph>
     <br />
     <Paragraph ellipsis={{ expandable: true, expandText: 'Show More' }} style={{ width: 350 }}>
-      单行截断并且支持展开，自定义展开文本： Semi Design 是由互娱社区前端团队与 UED
+      单行截断并且支持展开，自定义展开文本： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
     <br />
     <Paragraph ellipsis={{ expandText: 'Show More' }} style={{ width: 350 }}>
-      单行截断，自定义展开文本但是不能展开哦： Semi Design 是由互娱社区前端团队与 UED
+      单行截断，自定义展开文本但是不能展开哦： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
     <br />
     <Paragraph ellipsis={{ showTooltip: true }} style={{ width: 350 }}>
-      单行截断，展示tooltip： Semi Design 是由互娱社区前端团队与 UED
+      单行截断，展示tooltip： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -207,7 +209,7 @@ export const EllipsisSingle = () => (
       ellipsis={{ suffix: '喵喵喵', expandText: 'Show More', expandable: true }}
       style={{ width: 250 }}
     >
-      单行截断，有suffix哦： Semi Design 是由互娱社区前端团队与 UED
+      单行截断，有suffix哦： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -217,11 +219,25 @@ export const EllipsisSingle = () => (
       ellipsis={{ suffix: '喵喵喵', expandText: 'Show More', expandable: true }}
       style={{ width: '50%' }}
     >
-      单行截断，要自动适配宽度才可以： Semi Design 是由互娱社区前端团队与 UED
+      单行截断，要自动适配宽度才可以： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
+    <br />
+    <div style={{ width: 300}} >
+      <Typography.Text
+        copyable={true}
+        link={{ href: '---' }}
+        ellipsis={{
+          showTooltip: {
+            opts: { content: '我是一个超长超长超长超长超长超长超长超长超长的链接' },
+          },
+        }}
+      >
+      我是一个超长超长超长超长超长超长超长超长超长的链接我是一个超长超长超长超长超长超长超长超长超长的链接
+      </Typography.Text>
+    </div>
   </div>
 );
 
@@ -232,7 +248,7 @@ EllipsisSingle.story = {
 export const EllipsisMultiple = () => (
   <div>
     <Paragraph ellipsis={{ rows: 3 }} style={{ width: 300 }}>
-      这是一个多行截断的例子： Semi Design 是由互娱社区前端团队与 UED
+      这是一个多行截断的例子： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -250,7 +266,7 @@ export const EllipsisMultiple = () => (
     </Paragraph>
     <br />
    <Paragraph ellipsis={{ rows: 3, expandable: true }} style={{ width: 280 }}>
-      多行截断并且支持展开：Semi Design 是由互娱社区前端团队与 UED
+      多行截断并且支持展开：Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -260,28 +276,28 @@ export const EllipsisMultiple = () => (
       ellipsis={{ expandable: true, rows: 3, expandText: 'Show More' }}
       style={{ width: 250 }}
     >
-      多行截断并且支持展开，自定义展开文本： Semi Design 是由互娱社区前端团队与 UED
+      多行截断并且支持展开，自定义展开文本： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
     <br />
     <Paragraph ellipsis={{ rows: 3, expandText: 'Show More' }} style={{ width: 250 }}>
-      多行截断，自定义展开文本但是不能展开哦： Semi Design 是由互娱社区前端团队与 UED
+      多行截断，自定义展开文本但是不能展开哦： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
     <br />
     <Paragraph ellipsis={{ rows: 3, showTooltip: true }} style={{ width: 250 }}>
-      多行截断，展示tooltip： Semi Design 是由互娱社区前端团队与 UED
+      多行截断，展示tooltip： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
     <br />
     <Paragraph ellipsis={{ rows: 3, showTooltip: { type: 'popover' } }} style={{ width: 250 }}>
-      多行截断，展示popover： Semi Design 是由互娱社区前端团队与 UED
+      多行截断，展示popover： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -291,7 +307,7 @@ export const EllipsisMultiple = () => (
       ellipsis={{ rows: 3, expandText: 'Show More', showTooltip: { type: 'popover' } }}
       style={{ width: 250 }}
     >
-      多行截断，有展开文字但是不能展开所以不能展示popover： Semi Design 是由互娱社区前端团队与 UED
+      多行截断，有展开文字但是不能展开所以不能展示popover： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -302,14 +318,14 @@ export const EllipsisMultiple = () => (
     </Paragraph>
     <br />
     <Paragraph ellipsis={{ rows: 3, suffix: '喵喵喵', expandable: true }} style={{ width: 250 }}>
-      多行截断，有suffix哦： Semi Design 是由互娱社区前端团队与 UED
+      多行截断，有suffix哦： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
     <br />
     <Paragraph ellipsis={{ rows: 3, suffix: '喵喵喵', expandable: true }} style={{ width: '50%' }}>
-      多行截断，要自动适配宽度才可以： Semi Design 是由互娱社区前端团队与 UED
+      多行截断，要自动适配宽度才可以： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -332,7 +348,7 @@ EllipsisMultiple.story = {
 export const EllipsisChaos = () => (
   <div>
     <Paragraph ellipsis={{ rows: 3 }} style={{ width: 300 }}>
-      不可以有非文本，要抛出来warning： Semi Design 是由互娱社区前端团队与 UED
+      不可以有非文本，要抛出来warning： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。
       <br />{' '}
       设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
@@ -341,7 +357,7 @@ export const EllipsisChaos = () => (
     </Paragraph>
     <br />
     <Paragraph ellipsis copyable style={{ width: 350 }}>
-      还可以复制哦： Semi Design 是由互娱社区前端团队与 UED
+      还可以复制哦： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -358,14 +374,14 @@ export const EllipsisChaos = () => (
       }}
       style={{ width: 350 }}
     >
-      不要复制成功了： Semi Design 是由互娱社区前端团队与 UED
+      不要复制成功了： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
     <br />
     <Paragraph ellipsis link style={{ width: 350 }}>
-      是一个链接呢： Semi Design 是由互娱社区前端团队与 UED
+      是一个链接呢： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -376,7 +392,7 @@ export const EllipsisChaos = () => (
       ellipsis={{ expandable: true, rows: 3, expandText: 'Show More' }}
       style={{ width: 250 }}
     >
-      是一个链接还能展开呢： Semi Design 是由互娱社区前端团队与 UED
+      是一个链接还能展开呢： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -388,21 +404,21 @@ export const EllipsisChaos = () => (
       ellipsis={{ expandable: true, rows: 3, expandText: 'Show More' }}
       style={{ width: 250 }}
     >
-      是一个链接还能展开呢还能复制呢： Semi Design 是由互娱社区前端团队与 UED
+      是一个链接还能展开呢还能复制呢： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
     <br />
     <Title heading={2} ellipsis={{ showTooltip: true }} style={{ width: 250 }}>
-      是个2号标题哦： Semi Design 是由互娱社区前端团队与 UED
+      是个2号标题哦： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Title>
     <br />
     <Title heading={4} link ellipsis={{ showTooltip: true }} style={{ width: 250 }}>
-      是个4号标题链接呢： Semi Design 是由互娱社区前端团队与 UED
+      是个4号标题链接呢： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -413,7 +429,7 @@ export const EllipsisChaos = () => (
       ellipsis={{ rows: 3, showTooltip: { type: 'popover' } }}
       style={{ width: 250 }}
     >
-      是个警告文本呢： Semi Design 是由互娱社区前端团队与 UED
+      是个警告文本呢： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -426,7 +442,7 @@ export const EllipsisChaos = () => (
       ellipsis={{ showTooltip: true }}
       style={{ width: 250 }}
     >
-      是个5号标题链接还有个小小的图标啦： Semi Design 是由互娱社区前端团队与 UED
+      是个5号标题链接还有个小小的图标啦： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -449,7 +465,7 @@ export const EllipsisCollapsible = () => (
       }}
       style={{ width: 300 }}
     >
-      Semi Design 是由互娱社区前端团队与 UED
+      Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -465,7 +481,7 @@ export const EllipsisCollapsible = () => (
       }}
       style={{ width: 300 }}
     >
-      自定义的收起：Semi Design 是由互娱社区前端团队与 UED
+      自定义的收起：Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -481,7 +497,7 @@ export const EllipsisCollapsible = () => (
       }}
       style={{ width: 300 }}
     >
-      不让你收起来略：Semi Design 是由互娱社区前端团队与 UED
+      不让你收起来略：Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -497,7 +513,7 @@ export const EllipsisCollapsible = () => (
       }}
       style={{ width: 300 }}
     >
-      又可以复制啦：Semi Design 是由互娱社区前端团队与 UED
+      又可以复制啦：Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -513,7 +529,7 @@ export const EllipsisCollapsible = () => (
       }}
       style={{ width: 300 }}
     >
-      又来测试链接啦啦啦：Semi Design 是由互娱社区前端团队与 UED
+      又来测试链接啦啦啦：Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -537,7 +553,7 @@ export const EllipsisFromCenter = () => (
       }}
       style={{ width: 300 }}
     >
-      多行中间截断还能展开和折叠：Semi Design 是由互娱社区前端团队与 UED
+      多行中间截断还能展开和折叠：Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -556,28 +572,28 @@ export const EllipsisFromCenter = () => (
       }}
       style={{ width: 300 }}
     >
-      单行中间截断还能展开和折叠： Semi Design 是由互娱社区前端团队与 UED
+      单行中间截断还能展开和折叠： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
     <br />
     <Paragraph ellipsis={{ pos: 'middle', expandable: true }} style={{ width: 300 }}>
-      单行中间截断还能展开超厉害： Semi Design 是由互娱社区前端团队与 UED
+      单行中间截断还能展开超厉害： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
     <br />
     <Paragraph ellipsis={{ pos: 'middle' }} style={{ width: '50%' }}>
-      单行中间截断： Semi Design 是由互娱社区前端团队与 UED
+      单行中间截断： Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
     </Paragraph>
     <br />
     <Paragraph ellipsis={{ rows: 3, pos: 'middle', expandable: true }} style={{ width: '50%' }}>
-      自动适配的多行中间截断：Semi Design 是由互娱社区前端团队与 UED
+      自动适配的多行中间截断：Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -586,6 +602,22 @@ export const EllipsisFromCenter = () => (
     <Title heading={3} ellipsis={{ pos: 'middle' }} style={{ width: '50%' }}>
       我是一个酷炫的从中间折断的3号标题
     </Title>
+    <br />
+    <Text
+        data-cy="nowrap-middile-ellipsis1"
+        ellipsis={{ pos: 'middle', rows: 1, showTooltip: true }}
+        style={{ width: '200px', whiteSpace: 'nowrap', overflow: 'hidden' }}
+    >
+      不能换行的单行从中间截断时，应该能正常展示省略
+    </Text>
+    <br />
+    <Text
+        data-cy="nowrap-middile-ellipsis2"
+        ellipsis={{ pos: 'middle', rows: 1, showTooltip: true }}
+        style={{ width: '200px', overflow: 'hidden' }}
+    >
+      This/one/does/not/wrap/like/the/one/before/but/does/not/have/whiteSpace/set
+    </Text>
     <br />
     <Text ellipsis={{ pos: 'middle' }} style={{ width: '50%' }}>
       通常のテキストでさえ、切り捨てる機能が必要です
@@ -605,7 +637,7 @@ EllipsisFromCenter.story = {
 export const Copyable = () => (
   <div>
     <Paragraph copyable>
-      Semi Design 是由互娱社区前端团队与 UED
+      Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。 区别于其他的设计系统而言，Semi Design
       以用户中心、内容优先、设计人性化为设计理念，具有四大优势。
@@ -618,7 +650,7 @@ export const Copyable = () => (
     }} >点击右边的图标复制文本。</Paragraph>
     <br />
     <Paragraph spacing="extended" copyable>
-      Semi Design 是由互娱社区前端团队与 UED
+      Semi Design 是由抖音前端团队与 UED
       团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
       Web 应用。
       <br />
@@ -637,7 +669,7 @@ export const Copyable = () => (
     <br />
     <Paragraph spacing="extended" copyable>
       <span>
-        Semi Design 是由互娱社区前端团队与 UED
+        Semi Design 是由抖音前端团队与 UED
         团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
         Web 应用。 ➡️
       </span>
@@ -820,3 +852,137 @@ export const JsEllipsisNoTooltip = () => (
       data_tns
   </Title>
 )
+
+export const HugeDataDemo = () => {
+    return <HugeData/>
+}
+
+export const CustomTooltip = () => {
+  const customRenderTooltip = useCallback((content, children) => {
+    return <Tooltip content={content} style={{ backgroundColor: 'var(--semi-color-primary)' }}>{children}</Tooltip>
+  }, []);
+
+  return <div>
+     <Title 
+      heading={5} 
+      ellipsis={{ 
+        showTooltip: {
+          renderTooltip: customRenderTooltip
+        }
+      }} 
+      style={{ width: 250 }}
+      
+    >
+      这是一个自定义 tooltip 的省略文本，背景色是蓝色
+    </Title>
+  </div>
+}
+
+export const GlobalEllipsisPopoverCls = () => (
+  <Title 
+    heading={5} 
+    ellipsis={{ 
+      showTooltip: {
+        type: 'popover',
+        opts: {
+          className: 'testPopoverCls'
+        }
+      },
+    }} 
+    // wordBreak 设置在 Title 的style里
+    style={{ width: 250, wordBreak: 'break-all' }}
+  >
+    测试 showTooltip 中的 type 为 popover 时，传入的类名称正确
+  </Title>
+)
+
+export const SingleRowCssEllipsisAccurate = () => {
+  const { Text } = Typography;
+  return (
+    <div>
+      <p>文本截断，hover 展示 tooltip 正常</p>
+      <Text
+        style={{ width: 171 }}
+        ellipsis={{
+          showTooltip: true,
+        }}
+      >
+        Latin America-巴西-圣保罗
+      </Text>
+    </div>
+  );
+}
+
+export const InheritSize = () => {
+  const { Text } = Typography;
+  return (
+    <Text size="small">这是一段文本，样式为 small
+      <Text link size="inherit">这是一段链接，设置 size 为 inherit 继承外部样式设置</Text>
+    </Text>
+  )
+}
+
+export const SizeAffectIcon = () => {
+  // 增加用例，观察 size 设置对 icon 大小的影响
+  return (
+      <>
+          <Text size="normal"  icon={<IconLink />} underline>带下划线的网页链接</Text> 
+          <br />   
+          <br />     
+          <Text size="small"  icon={<IconLink />} underline>带下划线的网页链接</Text>
+      </>
+  )
+}
+
+export const StrongEllipsis = () =>{
+    return (
+      // 用于测试 strong 类型的 ellipsis 效果是否符合预期
+      // https://github.com/DouyinFE/semi-design/pull/2506
+      <div className="App">
+        <Typography.Title heading={2}>windows</Typography.Title>
+        {/* case 1 */}
+        <Typography.Paragraph
+          strong
+          ellipsis={{ rows: 3, suffix: "HELLO WORLD" }}
+          style={{ width: 300 }}
+        >
+          这是一个多行截断的例子：Semi Design 是由抖音前端团队与 UED
+          团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
+          Web 应用。
+        </Typography.Paragraph>
+        <br />
+        {/* case 2 */}
+        <Typography.Paragraph
+          strong
+          ellipsis={{ rows: 3, suffix: "HELLO WORLD" }}
+          style={{ width: 300, wordBreak: "break-all" }}
+        >
+          这是一个多行截断的例子：Semi Design 是由抖音前端团队与 UED
+          团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
+          Web 应用。
+        </Typography.Paragraph>
+        <Typography.Title heading={2}>macOS</Typography.Title>
+        {/* case 3 */}
+        <Typography.Paragraph
+          strong
+          ellipsis={{ rows: 3, suffix: "1234567891011" }}
+          style={{ width: 300 }}
+        >
+          这是一个多行截断的例子：Semi Design 是由抖音前端团队与 UED
+          团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
+          Web 应用。
+        </Typography.Paragraph>
+        <br />
+        {/* case 4 */}
+        <Typography.Paragraph
+          strong
+          ellipsis={{ rows: 3, suffix: "123456" }}
+          style={{ width: 300, wordBreak: "break-all" }}
+        >
+          这是一个多行截断的例子：Semi Design 是由抖音前端团队与 UED
+          团队共同设计开发并维护的设计系统。设计系统包含设计语言以及一整套可复用的前端组件，帮助设计师与开发者更容易地打造高质量的、用户体验一致的、符合设计规范的
+          Web 应用。
+        </Typography.Paragraph>
+      </div>
+    );
+}

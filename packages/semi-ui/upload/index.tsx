@@ -18,6 +18,7 @@ import type {
     OnChangeProps,
     customRequestArgs,
     CustomError,
+    RenderPictureCloseProps,
 } from './interface';
 import { Locale } from '../locale/interface';
 import '@douyinfe/semi-foundation/upload/upload.scss';
@@ -27,6 +28,7 @@ import type {
     UploadAdapter,
     BeforeUploadObjectResult,
     AfterUploadResult,
+    FileItemStatus
 } from '@douyinfe/semi-foundation/upload/foundation';
 import type { ValidateStatus } from '../_base/baseComponent';
 
@@ -34,6 +36,7 @@ const prefixCls = cssClasses.PREFIX;
 
 export type {
     FileItem,
+    FileItemStatus,
     RenderFileItemProps,
     UploadListType,
     PromptPositionType,
@@ -67,6 +70,7 @@ export interface UploadProps {
     dragMainText?: ReactNode;
     dragSubText?: ReactNode;
     draggable?: boolean;
+    addOnPasting?: boolean;
     fileList?: Array<FileItem>;
     fileName?: string;
     headers?: Record<string, any> | ((file: File) => Record<string, string>);
@@ -83,6 +87,7 @@ export interface UploadProps {
     onClear?: () => void;
     onDrop?: (e: Event, files: Array<File>, fileList: Array<FileItem>) => void;
     onError?: (e: CustomError, file: File, fileList: Array<FileItem>, xhr: XMLHttpRequest) => void;
+    onPastingError?: (error: Error | PermissionStatus) => void;
     onExceed?: (fileList: Array<File>) => void;
     onFileChange?: (files: Array<File>) => void;
     onOpenFileDialog?: () => void;
@@ -101,6 +106,7 @@ export interface UploadProps {
     renderPicInfo?: (renderFileItemProps: RenderFileItemProps) => ReactNode;
     renderThumbnail?: (renderFileItemProps: RenderFileItemProps) => ReactNode;
     renderPicPreviewIcon?: (renderFileItemProps: RenderFileItemProps) => ReactNode;
+    renderPicClose?: (renderPicCloseProps: RenderPictureCloseProps) => ReactNode;
     renderFileOperation?: (fileItem: RenderFileItemProps) => ReactNode;
     showClear?: boolean;
     showPicInfo?: boolean; // Show pic info in picture wall
@@ -129,6 +135,7 @@ class Upload extends BaseComponent<UploadProps, UploadState> {
     static propTypes = {
         accept: PropTypes.string, // Limit allowed file types
         action: PropTypes.string.isRequired,
+        addOnPasting: PropTypes.bool,
         afterUpload: PropTypes.func,
         beforeClear: PropTypes.func,
         beforeRemove: PropTypes.func,
@@ -169,6 +176,7 @@ class Upload extends BaseComponent<UploadProps, UploadState> {
         onRetry: PropTypes.func,
         onSizeError: PropTypes.func, // Callback with invalid file size
         onSuccess: PropTypes.func,
+        onPastingError: PropTypes.func,
         previewFile: PropTypes.func, // Custom preview
         prompt: PropTypes.node,
         promptPosition: PropTypes.oneOf<UploadProps['promptPosition']>(strings.PROMPT_POSITION),
@@ -177,6 +185,7 @@ class Upload extends BaseComponent<UploadProps, UploadState> {
         renderFileItem: PropTypes.func,
         renderPicPreviewIcon: PropTypes.func,
         renderFileOperation: PropTypes.func,
+        renderPicClose: PropTypes.func,
         renderPicInfo: PropTypes.func,
         renderThumbnail: PropTypes.func,
         showClear: PropTypes.bool,
@@ -214,6 +223,7 @@ class Upload extends BaseComponent<UploadProps, UploadState> {
         onRetry: noop,
         onSizeError: noop,
         onSuccess: noop,
+        onPastingError: noop,
         promptPosition: 'right' as const,
         showClear: true,
         showPicInfo: false,
@@ -294,6 +304,19 @@ class Upload extends BaseComponent<UploadProps, UploadState> {
                     replaceInputKey: Math.random(),
                 }));
             },
+            isMac: (): boolean => {
+                return navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+            },
+            registerPastingHandler: (cb?: (e: KeyboardEvent) => void): void => {
+                document.body.addEventListener('keydown', cb);
+                this.pastingCb = cb;
+            },
+            unRegisterPastingHandler: (): void => {
+                if (this.pastingCb) {
+                    document.body.removeEventListener('keydown', this.pastingCb);
+                }
+            },
+            notifyPastingError: (error): void => this.props.onPastingError(error),
             updateDragAreaStatus: (dragAreaStatus: string): void =>
                 this.setState({ dragAreaStatus } as { dragAreaStatus: 'default' | 'legal' | 'illegal' }),
             notifyChange: ({ currentFile, fileList }): void => this.props.onChange({ currentFile, fileList }),
@@ -310,6 +333,11 @@ class Upload extends BaseComponent<UploadProps, UploadState> {
     foundation: UploadFoundation;
     inputRef: RefObject<HTMLInputElement> = null;
     replaceInputRef: RefObject<HTMLInputElement> = null;
+    pastingCb: null | ((params: any) => void);
+
+    componentDidMount(): void {
+        this.foundation.init();
+    }
 
     componentWillUnmount(): void {
         this.foundation.destroy();
@@ -359,7 +387,7 @@ class Upload extends BaseComponent<UploadProps, UploadState> {
      * @param index number
      * @returns
      */
-    insert = (files: Array<CustomFile>, index: number): void => {
+    insert = (files: Array<CustomFile>, index?: number): void => {
         return this.foundation.insertFileToList(files, index);
     };
 
@@ -387,6 +415,7 @@ class Upload extends BaseComponent<UploadProps, UploadState> {
             itemStyle,
             showPicInfo,
             renderPicInfo,
+            renderPicClose,
             renderPicPreviewIcon,
             renderFileOperation,
             renderFileItem,
@@ -417,6 +446,7 @@ class Upload extends BaseComponent<UploadProps, UploadState> {
             showPicInfo,
             renderPicInfo,
             renderPicPreviewIcon,
+            renderPicClose,
             renderFileOperation,
             renderThumbnail,
             onReplace,
@@ -739,5 +769,4 @@ class Upload extends BaseComponent<UploadProps, UploadState> {
         );
     }
 }
-
 export default Upload;

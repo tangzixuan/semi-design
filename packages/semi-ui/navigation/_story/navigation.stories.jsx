@@ -13,6 +13,9 @@ import DisabledNav from './DisabledNav';
 import Button from '../../button';
 import GetPopupNav from './Popup';
 import CustomArrowIcon from './CustomIcon';
+import FixedSelectedKeys from './FixedSelectedKeys';
+import FixedOpenKeys from './FixedOpenKeys';
+import NumberItemKey from './NumberItemKey';
 
 import {
   IconMail,
@@ -35,6 +38,12 @@ import {
 
 export default {
   title: 'Navigation'
+}
+
+export {
+  FixedSelectedKeys,
+  FixedOpenKeys,
+  NumberItemKey
 }
 
 export const Default = () => {
@@ -110,7 +119,7 @@ class NavApp extends React.Component {
           </Nav.Sub>
           <Nav.Item key={3} itemKey={'3'} text={'Option 3'} icon={<IconCamera />} />
           <Nav.Item key={4} itemKey={'4'} text={'Option 4'} icon={<IconArticle />} />
-          <Nav.Sub text={'Group 5'} stayWhenClick={true} icon={<IconFolder />}>
+          <Nav.Sub text={'Group 5'} stayWhenClick={true} icon={<IconFolder />} dropdownProps={{ spacing: 20 }}>
             {['5-1', '5-2'].map(k => (
               <Nav.Item key={k} itemKey={String(k)} text={'Option ' + k} />
             ))}
@@ -164,6 +173,10 @@ export const Horizontal = () => (
         },
       ]}
       onSelect={key => console.log(key)}
+      subDropdownProps={{
+        clickToHide: true,
+        spacing: 12
+      }}
     />
   </div>
 );
@@ -339,4 +352,43 @@ PopupDemo.story = {
 export const CustomArrowIconDemo = () => <CustomArrowIcon></CustomArrowIcon>
 CustomArrowIconDemo.story = {
   name: 'CustomArrowIcon'
+}
+
+
+class DisabledSub extends React.Component {
+    render() {
+        return (
+            <Nav
+                style={{ height: 520 }}
+                bodyStyle={{ height: 300 }}
+                items={[
+                    {
+                        text: '任务平台',
+                        itemKey: '1',
+                        icon: <IconMail />,
+                        items: [{
+                            text: '任务平台1',
+                            disabled: true,
+                            itemKey: '11',
+                            items: ['任务1管理', '用户2任务查询'],
+                        }, {
+                            text: '任务平台2',
+                            disabled: true,
+                            itemKey: '12',
+                            items: ['任务11管理', '用户22任务查询'],
+                        }],
+                    },
+                ]}
+                onSelect={key => console.log(key)}
+                footer={{
+                    collapseButton: true,
+                }}
+            />
+        );
+    }
+}
+
+export const DisabledSubDemo = () => <DisabledSub></DisabledSub>
+DisabledSubDemo.story = {
+  name: 'DisabledSubDemo'
 }

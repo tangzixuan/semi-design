@@ -38,7 +38,8 @@ const getRenderText = (
     },
     ellipsisStr: string,
     suffix: string,
-    ellipsisPos: string
+    ellipsisPos: string,
+    isStrong: boolean,
 ) => {
     if (content.length === 0) {
         return '';
@@ -60,13 +61,18 @@ const getRenderText = (
     );
 
     // Set shadow
-    const maxWidth = parseInt(originStyle.width);
     ellipsisContainer.setAttribute('style', originCSS);
     ellipsisContainer.style.position = 'fixed';
     ellipsisContainer.style.left = '0';
+    // 当 window.getComputedStyle 得到的 width 值为 auto 时，通过 getBoundingClientRect 得到准确宽度
+    // When the width value obtained by window.getComputedStyle is auto, get the exact width through getBoundingClientRect
+    if (originStyle.getPropertyValue('width') === 'auto' && originEle.offsetWidth) {
+        ellipsisContainer.style.width = `${originEle.offsetWidth}px`;
+    } 
     ellipsisContainer.style.height = 'auto';
     ellipsisContainer.style.top = '-999999px';
     ellipsisContainer.style.zIndex = '-1000';
+    isStrong && (ellipsisContainer.style.fontWeight = '600');
 
     // clean up css overflow
     ellipsisContainer.style.textOverflow = 'clip';
@@ -78,12 +84,13 @@ const getRenderText = (
         ellipsisContainer
     );
 
-    // Check if ellipsis in measure div is height enough for content
+    // Check if ellipsis in measure div is enough for content
     function inRange() {
-        if (originStyle.whiteSpace === 'nowrap') {
-            return ellipsisContainer.scrollWidth <= maxWidth;
-        }
-        return ellipsisContainer.scrollHeight < maxHeight;
+        // If content does not wrap due to line break strategy, width should be judged to determine whether it's in range
+        const widthInRange = ellipsisContainer.scrollWidth <= ellipsisContainer.offsetWidth;
+        const heightInRange = ellipsisContainer.scrollHeight < maxHeight;
+
+        return rows === 1 ? widthInRange && heightInRange : heightInRange;
     }
 
     // ========================= Find match ellipsis content =========================

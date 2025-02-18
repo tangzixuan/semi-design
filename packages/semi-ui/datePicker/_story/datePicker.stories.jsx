@@ -68,7 +68,14 @@ export {
     DynamicDisabledDate,
     FeatEtcGMT,
     FixDisabledDate,
-    FeatInsetInputShowClear
+    FeatInsetInputShowClear,
+    AutoSplitInput,
+    FixNeedConfirmControlled,
+    FixedNaN,
+    PresetsFunctionType,
+    FixedSelectedStatus,
+    FixedControlled,
+    FixedControlledValue
 } from './v2';
 
 
@@ -483,8 +490,12 @@ export const YearPicker = () => (
 export const MonthPicker = () => {
   const Demo = () => {
     const [controlledValue, setControlledValue] = useState('2019-09');
+    const [controlledRangeValue, setControlledRangeValue] = useState(['2019-09', '2019-10']);
+
 
     const _setControlledValue = value => setControlledValue(value);
+    const _setControlledRangeValue = value => setControlledRangeValue(value);
+
 
     return (
       <>
@@ -518,6 +529,17 @@ export const MonthPicker = () => {
         <div>
           <span>MonthPicker with controlledValue</span>
           <DatePicker type="month" value={controlledValue} onChange={_setControlledValue} />
+        </div>
+        <br />
+        <br />
+        <h3>monthRange</h3>
+        <div>
+          <span>MonthRange Picker</span>
+          <DatePicker type="monthRange"  />
+        </div>
+        <div>
+          <span>MonthRange Picker with controlledValue</span>
+          <DatePicker type="monthRange" value={controlledRangeValue} onChange={_setControlledRangeValue} />
         </div>
       </>
     );
@@ -583,6 +605,12 @@ export const MonthRangePicker = () => {
         return date.getTime() < deadDate.getTime(); 
     };
 
+    const disabledRangeDate = date => {
+        const deadDate = new Date('2025/3/1 00:00:00');
+        const startDate = new Date('2024/11/1 00:00:00');
+        return date.getTime() < startDate.getTime() || date.getTime() > deadDate.getTime(); 
+    };
+
     return (
       <>
         <div>
@@ -618,6 +646,8 @@ export const MonthRangePicker = () => {
           <br />
           <div>年月禁用：禁用2023年3月前的所有年月</div>
           <DatePicker type="monthRange" disabledDate={disabledDate}/>
+          <div>年月禁用：禁用2024年11月前 & 2025年2月后的所有年月</div>
+          <DatePicker type="monthRange" disabledDate={disabledRangeDate}/>
           <br />
           <br />
           <div>validateStatus</div>
@@ -1164,3 +1194,32 @@ NeedConfirmDelete.storyName = "cashedSelectedValue return to last selected when 
   );
 };
 CashedSelectedValue.storyName = "cashedSelectedValue";
+
+export const Fix1982 = () => {
+  return <DatePicker type="monthRange" style={{ width: 200 }} />
+}
+
+
+export const Fix2567 = () => {
+  const disabledDate = (date) => {
+    const deadDate = new Date('2025/3/1 00:00:00');
+    const startDate = new Date('2024/11/1 00:00:00');
+    return date.getTime() < startDate.getTime() || date.getTime() > deadDate.getTime(); 
+  }
+  return (
+    <div>
+      <div>datePicker monthRange 对于三种需要矫正日期的处理</div>
+      <br />
+      <div>点击右侧面板 2024</div>
+      <DatePicker defaultValue={['2024-11', '2025-01']}type="monthRange"  disabledDate={disabledDate} />
+      <br />
+      <br />
+      <div>点击右侧面板 2024</div>
+      <DatePicker defaultValue={['2024-12', '2025-01']}type="monthRange"  disabledDate={disabledDate} />
+      <br />
+      <br />
+      <div>点击左侧面板 2025</div>
+      <DatePicker defaultValue={['2024-11', '2025-01']}type="monthRange"  disabledDate={disabledDate} />
+    </div>
+  )
+}

@@ -6,6 +6,7 @@ import isNullOrUndefined from '../utils/isNullOrUndefined';
 import { BasicOptionProps } from './optionFoundation';
 import isEnterPress from '../utils/isEnterPress';
 import { handlePrevent } from '../utils/a11y';
+import { strings } from './constants';
 
 export interface SelectAdapter<P = Record<string, any>, S = Record<string, any>> extends DefaultAdapter<P, S> {
     getTriggerWidth(): number;
@@ -18,7 +19,7 @@ export interface SelectAdapter<P = Record<string, any>, S = Record<string, any>>
     rePositionDropdown(): void;
     updateFocusIndex(index: number): void;
     updateSelection(selection: Map<any, any>): void;
-    openMenu(): void;
+    openMenu(cb?: () => void): void;
     notifyDropdownVisibleChange(visible: boolean): void;
     registerClickOutsideHandler(event: any): void;
     toggleInputShow(show: boolean, cb: () => void): void;
@@ -30,6 +31,7 @@ export interface SelectAdapter<P = Record<string, any>, S = Record<string, any>>
     notifyClear(): void;
     updateInputValue(inputValue: string): void;
     focusInput(): void;
+    focusDropdownInput(): void;
     notifySearch(inputValue: string, event?: any): void;
     registerKeyDown(handler: () => void): void;
     unregisterKeyDown(): void;
@@ -298,7 +300,18 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
                     const indexInSelectedList = selectedOptionList.findIndex(option => option.value === selectedValue);
                     if (indexInSelectedList !== -1) {
                         const option = selectedOptionList[indexInSelectedList];
-                        selections.set(option.label, option);
+                        if (onChangeWithObject) {
+                            // Although the value is the same and can be found in selections, it cannot ensure that other items remain unchanged. A comparison is made.
+                            // https://github.com/DouyinFE/semi-design/pull/2139
+                            const optionCompare = { ...(propValue[i] as any) };
+                            if (isEqual(optionCompare, option)) {
+                                selections.set(option.label, option);
+                            } else {
+                                selections.set(optionCompare.label, optionCompare);
+                            }
+                        } else {
+                            selections.set(option.label, option);
+                        }
                     } else {
                         // The current value does not exist in the current optionList or the list before the change. Construct an option and update it to the selection
                         let optionNotExist = { value: selectedValue, label: selectedValue, _notExist: true };
@@ -335,7 +348,7 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
             this.open();
             this._notifyFocus(e);
         } else if (isOpen && clickToHide) {
-            this.close(e);
+            this.close({ event: e });
         } else if (isOpen && !clickToHide) {
             this.focusInput();
         }
@@ -352,18 +365,27 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
             const newOptions = this._filterOption(options, sugInput).filter(item => !item._inputCreateOnly);
             this._adapter.updateOptions(newOptions);
             this.toggle2SearchInput(true);
+        } else {
+            // whether it is a filter or not, isFocus is guaranteed to be true when open
+            this._adapter.updateFocusState(true);
         }
-        this._adapter.openMenu();
+        this._adapter.openMenu(() => {
+            const { searchPosition, autoFocus } = this.getProps();
+            if (autoFocus && searchPosition === strings.SEARCH_POSITION_DROPDOWN) {
+                this._adapter.focusDropdownInput();
+            }
+        });
         this._setDropdownWidth();
         this._adapter.notifyDropdownVisibleChange(true);
 
         this.bindKeyBoardEvent();
 
         this._adapter.registerClickOutsideHandler((e: MouseEvent) => {
-            this.close(e);
+            this.close({ event: e });
             this._notifyBlur(e);
             this._adapter.updateFocusState(false);
         });
+
     }
 
     toggle2SearchInput(isShow: boolean) {
@@ -375,25 +397,31 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
         }
     }
 
-    close(e?: any, closeCb?: () => void) {
+    close(closeConfig?: { event?: any; closeCb?: () => void; notToggleInput?: boolean }) {
         // to support A11y, closing the panel trigger does not necessarily lose focus
-
+        const { event, closeCb, notToggleInput } = closeConfig || {};
+        const { isFocus } = this.getStates();
         this._adapter.closeMenu();
         this._adapter.notifyDropdownVisibleChange(false);
         this._adapter.setIsFocusInContainer(false);
+        if (isFocus) {
+            // if the isFocus state is true, refocus the trigger case see in https://github.com/DouyinFE/semi-design/issues/2465
+            this._focusTrigger();
+        }
         // this.unBindKeyBoardEvent();
         // this._notifyBlur(e);
-        this._adapter.unregisterClickOutsideHandler();
         // this._adapter.updateFocusState(false);
+        this._adapter.unregisterClickOutsideHandler();
 
         const isFilterable = this._isFilterable();
-        if (isFilterable) {
+        // notToggleInput will only be true when in controlled mode - handleSingeleSelect process
+        if (isFilterable && !notToggleInput) {
             this.toggle2SearchInput(false);
         }
 
         this._adapter.once('popoverClose', () => {
             if (isFilterable) {
-                this.clearInput(e);
+                this.clearInput(event);
             }
             if (closeCb) {
                 closeCb();
@@ -415,7 +443,6 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
         const isMultiple = this._isMultiple();
         if (!isMultiple) {
             this._handleSingleSelect(option, event);
-            this._focusTrigger();
         } else {
             this._handleMultipleSelect(option, event);
         }
@@ -429,18 +456,32 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
         // If it is a controlled component, directly notify
         // Make sure that the operations of updating updateOptions are done after the animation ends
         // otherwise the content will be updated when the popup layer is not collapsed, and it looks like it will flash once when it is closed
+        const isFilterable = this._isFilterable();
+
         if (this._isControlledComponent()) {
-            this.close(event, () => {
-                this._notifyChange(selections);
+            this.close({ 
+                event: event,
+                notToggleInput: true,
+                closeCb: () => {
+                    // trigger props.onChange -> update props.value -> updateSelection
+                    this._notifyChange(selections);
+                    // make sure toggleSearchInput update after updateSelection in controlled mode, otherwise text in inactive DOM will update quicker than selection, looks like flash text
+                    if (isFilterable) {
+                        this.toggle2SearchInput(false);
+                    }
+                }
             });
         } else {
             this._adapter.updateSelection(selections);
             // notify user
             this._notifyChange(selections);
 
-            this.close(event, () => {
-                // Update the selected item in the drop-down box
-                this.updateOptionsActiveStatus(selections);
+            this.close({
+                event: event,
+                closeCb: () => {
+                    // Update the selected item in the drop-down box
+                    this.updateOptionsActiveStatus(selections);
+                },
             });
         }
     }
@@ -685,6 +726,8 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
         }
     }
 
+    // When searchPosition is trigger, the keyboard events bind to the outer trigger div
+    // When searchPosition is dropdown, the popup and the outer trigger div are not parent- child relationships, keyboard events bind to the dorpdown input
     _handleKeyDown(event: KeyboardEvent) {
         const key = event.keyCode;
         const { loading, filter, multiple, disabled } = this.getProps();
@@ -716,7 +759,7 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
                 this._handleEnterKeyDown(event);
                 break;
             case KeyCode.ESC:
-                isOpen && this.close(event);
+                isOpen && this.close({ event: event });
                 filter && !multiple && this._focusTrigger();
                 break;
             case KeyCode.TAB:
@@ -808,7 +851,7 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
                 }
             } else {
                 // there are no focusable elements inside the container, tab to next element and trigger blur
-                this.close(event);
+                this.close({ event: event });
                 this._notifyBlur(event);
             }
         } else {
@@ -828,7 +871,7 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
         } else if (activeElement === focusableElements[focusableElements.length - 1]) {
             // focus in the last element in container, focus back to trigger and close panel
             this._focusTrigger(); 
-            this.close(event);
+            this.close({ event });
             handlePrevent(event);
         }
     }
@@ -839,7 +882,7 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
 
         if (!isFocusInContainer) {
             // focus in trigger, close the panel, shift tab to previe element and trigger blur
-            this.close(event);
+            this.close({ event });
             this._notifyBlur(event);
         } else if (activeElement === focusableElements[0]) {
             // focus in the first element in container, focus back to trigger
@@ -869,7 +912,7 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
                     this.onSelect(selectedOption, focusIndex, event);
                 }
             } else {
-                this.close(event);
+                this.close({ event });
             }
         }
     }
@@ -939,6 +982,8 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
         delete newOption._show;
         delete newOption._selected;
         delete newOption._scrollIndex;
+        delete newOption._keyInJsx;
+        
         if ('_keyInOptionList' in newOption) {
             newOption.key = newOption._keyInOptionList;
             delete newOption._keyInOptionList;
@@ -957,18 +1002,21 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
     }
 
     _diffSelections(selections: Map<any, any>, oldSelections: Map<any, any>, isMultiple: boolean) {
-        let diff = true;
+        let diffLabel = true, diffValue = true;
         if (!isMultiple) {
             const selectionProps = [...selections.values()];
             const oldSelectionProps = [...oldSelections.values()];
+            const optionValue = selectionProps[0] ? selectionProps[0].value : selectionProps[0];
+            const oldOptionValue = oldSelectionProps[0] ? oldSelectionProps[0].value : oldSelectionProps[0];
+            diffValue = !isEqual(optionValue, oldOptionValue);
             const optionLabel = selectionProps[0] ? selectionProps[0].label : selectionProps[0];
             const oldOptionLabel = oldSelectionProps[0] ? oldSelectionProps[0].label : oldSelectionProps[0];
-            diff = !isEqual(optionLabel, oldOptionLabel);
+            diffLabel = !isEqual(optionLabel, oldOptionLabel);
         } else {
             // When multiple selection, there is no scene where the value is different between the two operations
         }
-        return diff;
-    }
+        return diffValue || diffLabel;
+    } 
 
     // When onChangeWithObject is true, the onChange input parameter is not only value, but also label and other parameters
     _notifyChangeWithObject(selections: Map<any, any>) {
@@ -1013,10 +1061,12 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
     }
 
     handleClearClick(e: MouseEvent) {
-        const { filter } = this.getProps();
-        if (filter) {
+        const { filter, searchPosition } = this.getProps();
+        if (filter && searchPosition === strings.SEARCH_POSITION_TRIGGER) {
             this.clearInput(e);
         }
+        // after click showClear button, the select need to be focused
+        this.focus();
         this.clearSelected();
         // prevent this click open dropdown
         e.stopPropagation();
@@ -1051,22 +1101,24 @@ export default class SelectFoundation extends BaseFoundation<SelectAdapter> {
     }
 
     handleTriggerBlur(e: FocusEvent) {
-        this._adapter.updateFocusState(false);
         const { filter, autoFocus } = this.getProps();
         const { isOpen, isFocus } = this.getStates();
         // Under normal circumstances, blur will be accompanied by clickOutsideHandler, so the notify of blur can be called uniformly in clickOutsideHandler
         // But when autoFocus or the panel is close, because clickOutsideHandler is not register or unregister, you need to listen for the trigger's blur and trigger the notify callback
         if (isFocus && !isOpen) {
             this._notifyBlur(e);
+            this._adapter.updateFocusState(false);
         }
     }
 
     handleInputBlur(e: any) {
         const { filter, autoFocus } = this.getProps();
+        const { showInput, isOpen } = this.getStates();
         const isMultiple = this._isMultiple();
-        if (autoFocus && filter && !isMultiple ) {
-            // under this condition, when input blur, hide the input
-            this.toggle2SearchInput(false);
+        if (filter && !isMultiple ) {
+            if ((showInput || autoFocus) && !isOpen) {
+                this.toggle2SearchInput(false);
+            }
         }
     }
 

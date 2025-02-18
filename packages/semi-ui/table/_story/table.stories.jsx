@@ -38,6 +38,7 @@ import {
   PerfRender,
   PerfResizableSelection,
   PerfVirtualized,
+  DeepEqual
 } from './Perf';
 import RenderPagination from './RenderPagination';
 import ControlledSortOrder from './ControlledSortOrder';
@@ -46,6 +47,8 @@ import ExpandAllRows from './ExpandAllRows';
 import ExpandAllGroupRows from './ExpandAllGroupRows';
 import ExpandRowByClick from './ExpandRowByClick';
 import FixAllColumnsWithoutWidth from './FixAllColumnsWithoutWidth';
+import HugeData from "./HugeData"
+import RowSelectionRenderCell from './RowSelectionRenderCell';
 
 export default {
   title: 'Table'
@@ -70,7 +73,7 @@ export { default as VirtualizedDynamicData } from './VirtualizedDynamicData';
 export { default as MassiveColumns } from './MassiveColumns';
 export { default as ControlledPagination } from './ControlledPagination';
 export { default as FulldRenderDemo } from './FullRender';
-export { RTLAlignScrollBar, ColumnAlign, Direction  } from './RTL';
+export { RTLAlignScrollBar, ColumnAlign, Direction, ColumnAlignWithSorter  } from './RTL';
 export { default as JSXAsyncData } from './JSXAsyncData';
 export { default as ScrollBar } from './ScrollBar';
 export { default as TableSpan } from './TableSpan';
@@ -99,9 +102,29 @@ export {
     Fixed1556,
     FixedColumnAlign,
     FixOnChange,
-    ColumnResize
+    ColumnResize,
+    FixedResizableRowSelection,
+    SorterSortOrder,
+    FixedPagination,
+    ShowHeader,
+    KeepDOM,
+    SortIcon,
+    FixedAllDisabledAndSelected,
+    FeatRenderFilterDropdown,
+    InputFilter,
+    FixedRowSelectionHiddenResizable,
+    FixedExpandGroupRow,
+    FixedDefaultExpandedGroupedRows,
+    FixedRowSelectionEmpty,
+    DndKitDrag,
+    FixedOnGroupedRowClassName,
+    FixedVirtualizedRef,
+    RowSelectionOnCell,
+    FixedIndent
 } from './v2';
 export { default as FixSelectAll325 } from './Demos/rowSelection';
+
+export { DeepEqual };
 
 // empty table
 
@@ -619,3 +642,14 @@ PerfRenderDemo.parameters = {
   chromatic: { disableSnapshot: true },
 }
 export const RenderPaginationDemo = () => <RenderPagination />;
+
+export const HugeDataDemo = ()=><HugeData/>
+HugeDataDemo.parameters = {
+  chromatic: { disableSnapshot: true },
+};
+
+export const _RowSelectionRenderCell = () => <RowSelectionRenderCell />;
+
+_RowSelectionRenderCell.story = {
+  name: 'RowSelection RenderCell',
+};

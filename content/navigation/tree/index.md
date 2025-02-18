@@ -1,6 +1,6 @@
 ---
 localeCode: zh-CN
-order: 44
+order: 56
 category: 导航类
 title:  Tree 树形控件
 icon: doc-tree
@@ -1241,6 +1241,165 @@ class Demo extends React.Component {
 }
 ```
 
+### 自定义展开 Icon
+
+可以通过 `expandIcon` 自定义展开 Icon。 支持传入 ReactNode 或者函数。`expandIcon` 自 2.75.0 开始支持。
+
+```ts
+expandIcon: ReactNode | ((props: {
+    onClick: (e: MouseEvent) => void;
+    className: string;
+    expanded: boolean;
+}))
+```
+
+示例如下：
+
+```jsx live=true 
+() => {
+    const treeData = [
+        {
+            label: '亚洲',
+            key: 'yazhou',
+            children: [
+                {
+                    label: '中国',
+                    key: 'zhongguo',
+                    children: [
+                        {
+                            label: '北京',
+                            key: 'beijing',
+                        },
+                        {
+                            label: '上海',
+                            key: 'shanghai',
+                        },
+                    ],
+                },
+                {
+                    label: '日本',
+                    key: 'riben',
+                },
+            ],
+        },
+        {
+            label: '北美洲',
+            key: 'beimeizhou',
+        },
+    ];
+    const expandIconFunc = useCallback((props) => {
+        const { expanded, onClick, className } = props;
+        if (expanded) {
+        return <IconMinus size="small" className={className} onClick={onClick}/>
+        } else {
+        return <IconPlus size="small" className={className} onClick={onClick}/>
+        }
+    });
+    const style = {
+        width: 260,
+        height: 200,
+        border: '1px solid var(--semi-color-border)'
+    };
+
+  return (
+    <>
+      <p>expandIcon 是  ReactNode</p>
+      <Tree
+        style={{ width: 300}}
+        expandIcon={<IconChevronDown size="small" className='testCls'/>}
+        multiple
+        defaultExpandedKeys={['yazhou']}
+        treeData={treeData}
+        style={style}
+      />
+      <br />
+      <p>expandIcon 是函数 </p>
+      <Tree
+        style={{ width: 300}}
+        multiple
+        expandIcon={expandIconFunc}
+        defaultExpandedKeys={['yazhou']}
+        treeData={treeData}
+        style={style}
+      />
+    </>
+  );
+}
+```
+
+### 连接线
+
+通过 `showLine` 设置节点之间的连接线，默认为 false，从 2.50.0 开始支持
+
+```jsx live=true hideInDSM
+import React, { useState, useCallback } from 'react';
+import { Tree, Switch } from '@douyinfe/semi-ui';
+
+() => {
+    const [show, setShow] = useState(true);
+    const onChange = useCallback((value) => {
+        setShow(value);
+    }, []);
+    const treeData = useMemo(() => {
+        return [
+            {
+                label: 'parent-0',
+                key: 'parent-0',
+                children: [
+                    {
+                        label: 'leaf-0-0',
+                        key: 'leaf-0-0',
+                        children: [
+                            {
+                                label: 'leaf-0-0-0',
+                                key: 'leaf-0-0-0',
+                            },
+                            {
+                                label: 'leaf-0-0-1',
+                                key: 'leaf-0-0-1',
+                            },
+                            {
+                                label: 'leaf-0-0-2',
+                                key: 'leaf-0-0-2',
+                            },
+                        ]
+                    },
+                    {
+                        label: 'leaf-0-1',
+                        key: 'leaf-0-1',
+                    }
+                ]
+            },
+            {
+                label: 'parent-1',
+                key: 'parent-1',
+            }
+        ];
+    }, []);
+
+    const style = {
+        width: 260,
+        height: 420,
+        border: '1px solid var(--semi-color-border)'
+    };
+
+    return (
+        <>
+            <div style={{ display: 'flex', alignItems: 'center', columnGap: 5, marginBottom: 5 }}>
+                <strong>showLine </strong>
+                <Switch checked={show} onChange={onChange} />
+            </div>
+            <Tree
+                showLine={show}
+                defaultExpandAll
+                treeData={treeData}
+                style={style}
+            />
+        </>
+    );
+};
+```
+
 ### 虚拟化
 列表虚拟化，用于大量树节点的情况。开启后，动画效果将被关闭。
 
@@ -1637,6 +1796,51 @@ import { Tree } from '@douyinfe/semi-ui';
 **版本 v>=1.7.0**
 
 Tree 组件的 api 支持了大部分的渲染需求，但是如果有非常特殊的定制要求的话，可以使用 `renderFullLabel` 来接管整行 option 的渲染效果。
+
+renderFullLabel 参数类型如下：
+
+```ts
+type RenderFullLabelProps = {
+    /* 节点数据 */
+    data: BasicTreeNodeData;
+    /* 层级 */
+    level: number;
+    /* 虚拟化情况下，该 style 必须给到 DOM 节点上*/
+    style: any;
+     /* 样式类名，包括内置样式，如缩进、展开按钮、过滤器、禁用、选择等。 */
+    className: string;
+    /* 展开按钮 */
+    expandIcon: any;
+    /* 选中状态 */
+    checkStatus: {
+        /* 是否选中 */
+        checked: boolean;
+        /* 是否半选 */
+        halfChecked: boolean
+    };
+    /* 展开状态 */
+    expandStatus: {
+        /* 是否展开 */
+        expanded: boolean;
+        /* 是否加载中 */
+        loading: boolean
+    };
+    /* 该节点是否符合筛选条件 */
+    filtered: boolean | undefined;
+    /* 当前搜索框输入值 */
+    searchWord: string | undefined;
+    /* 点击回调 */
+    onClick: (e: MouseEvent) => void;
+    /* 多选点击回调 */
+    onCheck: (e: MouseEvent) => void;
+    /* 右键点击回调 */
+    onContextMenu: (e: MouseEvent) => void; 
+    /* 二次点击回调 */
+    onDoubleClick: (e: MouseEvent) => void;
+    /* 展开回调 */
+    onExpand: (e: MouseEvent) => void;
+}
+```
 
 <Notice type="primary" title="注意事项">
 <div>如果开启了虚拟化，需要将 style （虚拟化相关样式）赋予给渲染的 DOM 节点</div>
@@ -2168,6 +2372,7 @@ import { IconFixedStroked, IconSectionStroked, IconAbsoluteStroked, IconInnerSec
 |-------------   | ----------- | -------------- | -------------- | --------|
 | autoExpandParent | 是否自动展开父节点，默认为 false，当组件初次挂载时为 true | boolean | false | 0.34.0 |
 | autoExpandWhenDragEnter | 是否允许拖拽到节点上时自动展开改节点 | boolean | true | 1.8.0 | 
+| autoMergeValue | 设置自动合并 value。具体而言是，开启后，当某个父节点被选中时，value 将不包括该节点的子孙节点。（在leafOnly为false的情况下生效）| boolean | true | 2.61.0 | 
 | blockNode | 行显示节点 | boolean | true | - |
 | checkRelation | 多选时，节点之间选中状态的关系，可选：'related'、'unRelated' | string | 'related' | 2.5.0 |
 | className | 类名 | string | - | - |
@@ -2182,9 +2387,11 @@ import { IconFixedStroked, IconSectionStroked, IconAbsoluteStroked, IconInnerSec
 | expandAction             | 展开逻辑，可选 false, 'click', 'doubleClick'。默认值为 false，即仅当点击展开按钮时才会展开  | boolean \| string   | false | 0.35.0       |
 | expandAll | 设置是否默认展开所有节点，若后续数据(`treeData`/`treeDataSimpleJson`)发生改变，默认展开情况也是会受到这个 api 影响的 | boolean | false | 1.30.0 |
 | expandedKeys | （受控）展开的节点，默认展开节点显示其直接子级 | string[] | - | - |
+| expandIcon | 自定义展开图标 | ReactNode \| (props: expandProps)=>ReactNode | - | 2.75.0 |
+| keyMaps | 自定义节点中 key、label、value 的字段 | object |  - | 2.47.0 |
 | filterTreeNode | 是否根据输入项进行筛选，默认用 `treeNodeFilterProp` 的值作为要筛选的 `TreeNodeData` 的属性值,  data 参数自 v2.28.0 开始提供 | boolean \| ((inputValue: string, treeNodeString: string, data?: TreeNodeData) => boolean) | false | - |
 | hideDraggingNode | 是否隐藏正在拖拽的节点的 dragImg | boolean | false | 1.8.0 | 
-| icon | 自定义图标 | ReactNode | - | - |
+| icon | 自定义图标 | ReactNode \| (props: TreeNodeProps)=>ReactNode | - | - |
 | labelEllipsis | 是否开启label的超出省略，默认虚拟化状态开启，如果有其他省略需求可以设置关闭 | boolean | false\|true(virtualized) | 1.8.0 |
 | leafOnly | 多选模式下是否开启 onChange 回调入参及展示标签只有叶子节点 | boolean | false | 1.18.0 |  
 | loadData | 异步加载数据，需要返回一个Promise | (treeNode?: TreeNodeData) => Promise< void > |- |  1.0.0|
@@ -2194,13 +2401,14 @@ import { IconFixedStroked, IconSectionStroked, IconAbsoluteStroked, IconInnerSec
 | preventScroll | 指示浏览器是否应滚动文档以显示新聚焦的元素，作用于组件内的 focus 方法 | boolean |  |  |
 | renderDraggingNode | 自定义正在拖拽节点的 dragImg 的 Html 元素 | (nodeInstance: HTMLElement, node: TreeNodeData) => HTMLElement | - | 1.8.0 | 
 | renderFullLabel | 完全自定义label的渲染函数 | (data: object) => ReactNode | - | 1.7.0 | 
-| renderLabel | 自定义label的渲染函数 | (label: ReactNode, data: TreeNodeData) => ReactNode |- |  1.6.0 | 
+| renderLabel | 自定义label的渲染函数, searchWord 参数自 2.65.0 开始支持 | <ApiType detail='(label: ReactNode, data: TreeNodeData, searchWord: string) => ReactNode'>(label, data, searchWord) => ReactNode</ApiType> |- |  1.6.0 | 
 | searchClassName | 搜索框的 `className` 属性 | string | - | - |
 | searchPlaceholder | 搜索框默认文字 | string | - | - |
 | searchRender | 自定义搜索框的渲染方法，为 false 时可以隐藏组件的搜索框(**V>=1.0.0**) | ((searchRenderProps: object) => ReactNode) \| false | - | 0.35.0 |
 | searchStyle | 搜索框的样式 | CSSProperties | - | - |
 | showClear | 支持清除搜索框 | boolean | true | 0.35.0 |
 | showFilteredOnly | 搜索状态下是否只展示过滤后的结果 | boolean | false | 0.32.0 |
+| showLine | 显示连接线 | boolean | false | 2.50.0 |
 | style | 样式  | CSSProperties | - | - |
 | treeData | treeNodes 数据，如果设置则不需要手动构造 TreeNode 节点（key值在整个树范围内唯一） | TreeNodeData[] | \[] | - |
 | treeDataSimpleJson | 简单 JSON 形式的 `TreeNodeData` 数据，如果设置则不需要手动构造 TreeNode 节点，返回值为包含选中节点的Json数据 | TreeDataSimpleJson | \{} | - |

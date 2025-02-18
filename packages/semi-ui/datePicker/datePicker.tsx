@@ -29,6 +29,7 @@ import { Locale } from '../locale/interface';
 import { TimePickerProps } from '../timePicker/TimePicker';
 import { ScrollItemProps } from '../scrollList/scrollItem';
 import { InsetInputValue, InsetInputChangeProps } from '@douyinfe/semi-foundation/datePicker/inputFoundation';
+import { getDefaultPropsFromGlobalConfig } from "../_utils";
 
 export interface DatePickerProps extends DatePickerFoundationProps {
     'aria-describedby'?: React.AriaAttributes['aria-describedby'];
@@ -43,6 +44,7 @@ export interface DatePickerProps extends DatePickerFoundationProps {
     insetLabelId?: string;
     prefix?: React.ReactNode;
     topSlot?: React.ReactNode;
+    rightSlot?: React.ReactNode;
     renderDate?: (dayNumber?: number, fullDate?: string) => React.ReactNode;
     renderFullDate?: (dayNumber?: number, fullDate?: string, dayStatus?: DayStatusType) => React.ReactNode;
     triggerRender?: (props: DatePickerProps) => React.ReactNode;
@@ -60,8 +62,9 @@ export interface DatePickerProps extends DatePickerFoundationProps {
      */
     onFocus?: (e: React.MouseEvent, rangeType: RangeType) => void;
     onPresetClick?: (item: PresetType, e: React.MouseEvent<HTMLDivElement>) => void;
-    onClickOutSide?: () => void;
+    onClickOutSide?: (e: React.MouseEvent) => void;
     locale?: Locale['DatePicker'];
+    leftSlot?: React.ReactNode;
     dateFnsLocale?: Locale['dateFnsLocale'];
     yearAndMonthOpts?: ScrollItemProps<any>;
     dropdownMargin?: PopoverProps['margin']
@@ -135,7 +138,7 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
         validateStatus: PropTypes.oneOf(strings.STATUS),
         renderDate: PropTypes.func,
         renderFullDate: PropTypes.func,
-        spacing: PropTypes.number,
+        spacing: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
         startDateOffset: PropTypes.func,
         endDateOffset: PropTypes.func,
         autoSwitchDate: PropTypes.bool,
@@ -154,8 +157,8 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
         yearAndMonthOpts: PropTypes.object,
         onClickOutSide: PropTypes.func,
     };
-
-    static defaultProps = {
+    static __SemiComponentName__ = "DatePicker";
+    static defaultProps = getDefaultPropsFromGlobalConfig(DatePicker.__SemiComponentName__, {
         onChangeWithDateFirst: true,
         borderless: false,
         autoAdjustOverflow: true,
@@ -193,7 +196,7 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
         rangeSeparator: strings.DEFAULT_SEPARATOR_RANGE,
         insetInput: false,
         onClickOutSide: noop,
-    };
+    });
 
     triggerElRef: React.MutableRefObject<HTMLElement>;
     panelRef: React.RefObject<HTMLDivElement>;
@@ -257,16 +260,16 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
                 this.clickOutSideHandler = e => {
                     const triggerEl = this.triggerElRef && this.triggerElRef.current;
                     const panelEl = this.panelRef && this.panelRef.current;
-                    const isInTrigger = triggerEl && triggerEl.contains(e.target as Node);
-                    const isInPanel = panelEl && panelEl.contains(e.target as Node);
-                    const clickOutSide = !isInTrigger && !isInPanel && this._mounted;
-                    if (this.adapter.needConfirm()) {
-                        clickOutSide && this.props.onClickOutSide();
-                        return;
-                    } else {
-                        if (clickOutSide) {
-                            this.props.onClickOutSide();
-                            this.foundation.closePanel(e);
+                    const target = e.target as Element;
+                    const path = e.composedPath && e.composedPath() || [target];
+                    if (
+                        !(triggerEl && triggerEl.contains(target)) &&
+                        !(panelEl && panelEl.contains(target)) &&
+                        !(path.includes(triggerEl) || path.includes(panelEl))
+                    ) {
+                        this.props.onClickOutSide(e as any);
+                        if (!this.adapter.needConfirm()) {
+                            this.foundation.closePanel();
                         }
                     }
                 };
@@ -311,7 +314,7 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
                 }
                 switch (rangeInputFocus) {
                     case 'rangeStart':
-                        const inputStartNode = get(this, 'rangeInputStartRef.current');
+                        const inputStartNode = get(this, 'rangeInputStartRef.current') as HTMLInputElement;
                         inputStartNode && inputStartNode.focus({ preventScroll });
                         /**
                          * 解决选择完startDate，切换到endDate后panel被立马关闭的问题。
@@ -331,7 +334,7 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
                         }, 0);
                         break;
                     case 'rangeEnd':
-                        const inputEndNode = get(this, 'rangeInputEndRef.current');
+                        const inputEndNode = get(this, 'rangeInputEndRef.current') as HTMLInputElement;
                         inputEndNode && inputEndNode.focus({ preventScroll });
                         /**
                          * 解决选择完startDate，切换到endDate后panel被立马关闭的问题。
@@ -362,14 +365,14 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
                 switch (rangeInputFocus) {
                     case 'rangeEnd':
                         if (document.activeElement !== this.rangeInputEndRef.current) {
-                            const inputEndNode = get(this, 'rangeInputEndRef.current');
+                            const inputEndNode = get(this, 'rangeInputEndRef.current') as HTMLInputElement;
                             inputEndNode && inputEndNode.focus({ preventScroll });
                         }
                         break;
                     case 'rangeStart':
                     default:
                         if (document.activeElement !== this.rangeInputStartRef.current) {
-                            const inputStartNode = get(this, 'rangeInputStartRef.current');
+                            const inputStartNode = get(this, 'rangeInputStartRef.current') as HTMLInputElement;
                             inputStartNode && inputStartNode.focus({ preventScroll });
                         }
                         break;
@@ -377,20 +380,20 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
             },
             setInputFocus: () => {
                 const { preventScroll } = this.props;
-                const inputNode = get(this, 'inputRef.current');
+                const inputNode = get(this, 'inputRef.current') as HTMLInputElement;
                 inputNode && inputNode.focus({ preventScroll });
             },
             setInputBlur: () => {
-                const inputNode = get(this, 'inputRef.current');
+                const inputNode = get(this, 'inputRef.current') as HTMLInputElement;
                 inputNode && inputNode.blur();
             },
             setRangeInputBlur: () => {
                 const { rangeInputFocus } = this.state;
                 if (rangeInputFocus === 'rangeStart') {
-                    const inputStartNode = get(this, 'rangeInputStartRef.current');
+                    const inputStartNode = get(this, 'rangeInputStartRef.current') as HTMLInputElement;
                     inputStartNode && inputStartNode.blur();
                 } else if (rangeInputFocus === 'rangeEnd') {
-                    const inputEndNode = get(this, 'rangeInputEndRef.current');
+                    const inputEndNode = get(this, 'rangeInputEndRef.current') as HTMLInputElement;
                     inputEndNode && inputEndNode.blur();
                 }
                 this.adapter.setRangeInputFocus(false);
@@ -406,7 +409,7 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
     }
 
     componentDidUpdate(prevProps: DatePickerProps) {
-        if (prevProps.value !== this.props.value) {
+        if (!isEqual(prevProps.value, this.props.value)) {
             this.foundation.initFromProps({
                 ...this.props,
             });
@@ -746,7 +749,7 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
     };
 
     renderPanel = (locale: Locale['DatePicker'], localeCode: string, dateFnsLocale: Locale['dateFnsLocale']) => {
-        const { dropdownClassName, dropdownStyle, density, topSlot, bottomSlot, presetPosition, type } = this.props;
+        const { dropdownClassName, dropdownStyle, density, topSlot, bottomSlot, presetPosition, type, leftSlot, rightSlot } = this.props;
         const wrapCls = classnames(
             cssClasses.PREFIX,
             {
@@ -758,22 +761,36 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
 
         return (
             <div ref={this.panelRef} className={wrapCls} style={dropdownStyle} x-type={type}>
-                {topSlot && (
-                    <div className={`${cssClasses.PREFIX}-topSlot`} x-semi-prop="topSlot">
-                        {topSlot}
+                <div className={`${cssClasses.PREFIX}-container`}>
+                    {leftSlot && (
+                        <div className={`${cssClasses.PREFIX}-leftSlot`} x-semi-prop="leftSlot">
+                            {leftSlot}
+                        </div>
+                    )}
+                    <div>
+                        {topSlot && (
+                            <div className={`${cssClasses.PREFIX}-topSlot`} x-semi-prop="topSlot">
+                                {topSlot}
+                            </div>
+                        )}
+                        {/* todo: monthRange does not support presetPosition temporarily */}
+                        {presetPosition === "top" && type !== 'monthRange' && this.renderQuickControls()}
+                        {this.adapter.typeIsYearOrMonth()
+                            ? this.renderYearMonthPanel(locale, localeCode)
+                            : this.renderMonthGrid(locale, localeCode, dateFnsLocale)}
+                        {presetPosition === "bottom" && type !== 'monthRange' && this.renderQuickControls()}
+                        {bottomSlot && (
+                            <div className={`${cssClasses.PREFIX}-bottomSlot`} x-semi-prop="bottomSlot">
+                                {bottomSlot}
+                            </div>
+                        )}
                     </div>
-                )}
-                {/* todo: monthRange does not support presetPosition temporarily */}
-                {presetPosition === "top" && type !== 'monthRange' && this.renderQuickControls()}
-                {this.adapter.typeIsYearOrMonth()
-                    ? this.renderYearMonthPanel(locale, localeCode)
-                    : this.renderMonthGrid(locale, localeCode, dateFnsLocale)}
-                {presetPosition === "bottom" && type !== 'monthRange' && this.renderQuickControls()}
-                {bottomSlot && (
-                    <div className={`${cssClasses.PREFIX}-bottomSlot`} x-semi-prop="bottomSlot">
-                        {bottomSlot}
-                    </div>
-                )}
+                    {rightSlot && (
+                        <div className={`${cssClasses.PREFIX}-rightSlot`} x-semi-prop="rightSlot">
+                            {rightSlot}
+                        </div>
+                    )}
+                </div>
                 {this.renderFooter(locale, localeCode)}
             </div>
         );
@@ -881,6 +898,8 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
         const inner = this.renderInner(pick(this.props, innerPropKeys));
         const wrappedInner = this.wrapPopover(inner);
 
-        return <div {...outerProps}>{wrappedInner}</div>;
+        return <div {...outerProps}>
+            {wrappedInner}
+        </div>;
     }
 }

@@ -36,10 +36,11 @@ import fr from '@douyinfe/semi-ui/locale/source/fr';
 import ro from '@douyinfe/semi-ui/locale/source/ro';
 import { SortableContainer, SortableElement, sortableHandle } from 'react-sortable-hoc';
 import GraphemeSplitter from 'grapheme-splitter';
-
+export * as SemiMarkdownComponents from "@douyinfe/semi-ui/markdownRender/components";
 export * from '@douyinfe/semi-ui';
 export * from '@douyinfe/semi-foundation/utils';
 export * from '@douyinfe/semi-icons';
+// export * from '@douyinfe/semi-icons-lab';
 export * from '@douyinfe/semi-illustrations';
 
 export {
@@ -132,6 +133,7 @@ export {
     SortableContext,
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
+    arrayMove,
 } from '@dnd-kit/sortable';
   
 export { CSS as cssDndKit } from '@dnd-kit/utilities';
@@ -145,5 +147,90 @@ export {
     useSensor,
     useSensors,
     KeyboardSensor,
-    TraversalOrder
+    TraversalOrder,
+    PointerSensor
 } from '@dnd-kit/core';
+
+export { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+
+
+export {
+    IconAccessibility, 
+    IconAnchor,
+    IconAutocomplete,
+    IconAvatar,
+    // IconBackTop, 
+    IconBadge,
+    IconBadgeStar, 
+    IconBanner, 
+    IconBreadcrumb,
+    // IconButton,
+    // IconCalendar,
+    IconCard,
+    IconCascader,
+    IconCarousel,
+    IconChangelog, 
+    IconCheckbox,
+    IconConfig,
+    IconCollapse,
+    IconCollapsible,
+    IconColorPlatte,
+    IconColorPlatteNew,
+    IconDarkMode,
+    IconDatePicker,
+    IconDescriptions,
+    IconDivider,
+    IconDropdown,
+    IconEmpty,
+    IconFaq,
+    IconForm,
+    IconGettingStarted,
+    IconGrid, 
+    IconHeart,
+    IconHighlight,
+    // IconImage,
+    IconInput,
+    IconInputNumber,
+    IconIntro,
+    IconLayout,
+    // IconList,
+    IconLocaleProvider,
+    IconModal,
+    IconNavigation,
+    IconNotification,
+    IconOverflow,
+    IconPagination,
+    IconPopconfirm,
+    IconPopover,
+    IconProgress,
+    // IconRadio,
+    IconRating,
+    IconScrollList,
+    IconSelect,
+    IconSideSheet,
+    IconSkeleton,
+    IconSlider,
+    IconSpace,
+    // IconSpin,
+    IconSteps,
+    IconSwitch,
+    IconTable,
+    IconToken,
+    IconTabs,
+    IconTag,
+    IconTagInput, 
+    IconTimePicker,
+    IconTimeline,
+    IconToast, 
+    IconTooltip,
+    IconTransfer,
+    IconTree, 
+    IconTreeSelect,
+    IconTypography,
+    // IconUpload,
+    IconVersionTwo,
+    IconWheelChair
+} from '@douyinfe/semi-icons-lab';
+
+export { VChart } from "@visactor/react-vchart";
+export { initVChartSemiTheme } from '@visactor/vchart-semi-theme';

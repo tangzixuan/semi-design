@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { getUuidv4 } from '@douyinfe/semi-foundation/utils/uuid';
-import { cloneDeep, isUndefined } from 'lodash';
+import { isUndefined } from 'lodash';
 import { FormUpdaterContext, ArrayFieldContext } from './context';
 import warning from '@douyinfe/semi-foundation/utils/warning';
 import type { ArrayFieldStaff, FormUpdaterContextType } from '@douyinfe/semi-foundation/form/interface';
+import copy from 'fast-copy';
 
 export interface ArrayFieldProps {
     initValue?: any[];
@@ -71,7 +72,7 @@ class ArrayFieldComponent extends Component<ArrayFieldProps, ArrayFieldState> {
 
     cacheFieldValues: any[];
     shouldUseInitValue: boolean;
-    cacheUpdateKey: string;
+    cacheUpdateKey: string | number;
     context: FormUpdaterContextType;
 
     constructor(props: ArrayFieldProps, context: FormUpdaterContextType) {
@@ -97,8 +98,8 @@ class ArrayFieldComponent extends Component<ArrayFieldProps, ArrayFieldState> {
         this.shouldUseInitValue = !context.getArrayField(field);
 
         // Separate the arrays that reset and the usual add and remove modify, otherwise they will affect each other
-        const initValueCopyForFormState = cloneDeep(initValue);
-        const initValueCopyForReset = cloneDeep(initValue);
+        const initValueCopyForFormState = copy(initValue);
+        const initValueCopyForReset = copy(initValue);
         context.registerArrayField(field, initValueCopyForReset);
         // register ArrayField will update state.updateKey to render, So there is no need to execute forceUpdate here
         context.updateStateValue(field, initValueCopyForFormState, { notNotify: true, notUpdate: true });
@@ -132,16 +133,22 @@ class ArrayFieldComponent extends Component<ArrayFieldProps, ArrayFieldState> {
 
     add() {
         const { keys } = this.state;
+        const { field } = this.props;
+        const updater = this.context;
         keys.push(getUuidv4());
         this.shouldUseInitValue = true;
         this.setState({ keys });
+        let updateKey = new Date().valueOf();
+        updater.updateArrayField(field, { updateKey });
+        this.cacheUpdateKey = updateKey;
     }
 
-    addWithInitValue(lineObject: Record<string, any>) {
+    addWithInitValue(rowVal: Record<string, any> | string) {
         const updater = this.context;
         const { field } = this.props;
         const newArrayFieldVal = updater.getValue(field) ? updater.getValue(field).slice() : [];
-        newArrayFieldVal.push(lineObject);
+        const cloneRowVal = copy(rowVal);
+        newArrayFieldVal.push(cloneRowVal);
         updater.updateStateValue(field, newArrayFieldVal, {});
         updater.updateArrayField(field, { updateKey: new Date().valueOf() });
     }

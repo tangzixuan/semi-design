@@ -1,10 +1,12 @@
-import React, { useState, useMemo, useRef, useCallback } from 'react';
-import { Icon, Input, Button, Form, Popover, Tag, Typography, CheckboxGroup, TagInput } from '../../index';
+import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import { Icon, Input, Button, Form, Popover, Tag, Typography, CheckboxGroup, TagInput, Switch } from '../../index';
 import TreeSelect from '../index';
-import { flattenDeep } from 'lodash';
+import { flattenDeep, without } from 'lodash';
 import CustomTrigger from './CustomTrigger';
-import { IconCreditCard, IconChevronDown, IconClose } from '@douyinfe/semi-icons';
-import { setFocusToPreviousMenuItem } from '@douyinfe/semi-foundation/utils/a11y';
+import { IconCreditCard, IconChevronDown, IconClose, IconPlus, IconMinus } from '@douyinfe/semi-icons';
+import copy from 'fast-copy';
+
 const TreeNode = TreeSelect.TreeNode;
 const { Title } = Typography;
 
@@ -218,6 +220,129 @@ const treeDataWithoutValue = [
   },
 ];
 
+const specialTreeData = [
+  {
+    label1: '亚洲',
+    // value1: 'Yazhou',
+    key1: 'yazhou',
+    children1: [
+      {
+        label1: '中国',
+        // value1: 'Zhongguo',
+        key1: 'zhongguo',
+        disabled1: true,
+        children1: [
+          {
+            label1: '北京',
+            // value1: 'Beijing',
+            key1: 'beijing',
+          },
+          {
+            label1: '上海',
+            // value1: 'Shanghai',
+            key1: 'shanghai',
+          },
+        ],
+      },
+      {
+        label1: '日本',
+        // value1: 'Riben',
+        key1: 'riben',
+        children1: [
+          {
+            label1: '东京',
+            // value1: 'Dongjing',
+            key1: 'dongjing',
+          },
+          {
+            label1: '大阪',
+            // value1: 'Daban',
+            key1: 'daban',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label1: '北美洲',
+    // value1: 'Beimeizhou',
+    key1: 'beimeizhou',
+    children1: [
+      {
+        label1: '美国',
+        // value1: 'Meiguo',
+        key1: 'meiguo',
+      },
+      {
+        label1: '加拿大',
+        // value1: 'Jianada',
+        key1: 'jianada',
+      },
+    ],
+  },
+];
+
+const treeDataEn = [
+  {
+      label: 'Asia',
+      value: 'Asia',
+      key: '0',
+      children: [
+          {
+              label: 'China',
+              value: 'China',
+              key: '0-0',
+              children: [
+                  {
+                      label: 'Beijing',
+                      value: 'Beijing',
+                      key: '0-0-0',
+                  },
+                  {
+                      label: 'Shanghai',
+                      value: 'Shanghai',
+                      key: '0-0-1',
+                  },
+                  {
+                      label: 'Chengdu',
+                      value: 'Chengdu',
+                      key: '0-0-2',
+                  },
+              ],
+          },
+          {
+              label: 'Japan',
+              value: 'Japan',
+              key: '0-1',
+              children: [
+                  {
+                      label: 'Osaka',
+                      value: 'Osaka',
+                      key: '0-1-0'
+                  }
+              ]
+          },
+      ],
+  },
+  {
+      label: 'North America',
+      value: 'North America',
+      key: '1',
+      children: [
+          {
+              label: 'United States',
+              value: 'United States',
+              key: '1-0'
+          },
+          {
+              label: 'Canada',
+              value: 'Canada',
+              key: '1-1'
+          }
+      ]
+  }
+];
+
 export const TreeSelectWrapper = () => (
   <div>
     <div>github issue 750 修改测试用例</div>
@@ -369,7 +494,7 @@ Searchable.story = {
 };
 
 export const SearchPosition = () => (
-  <>
+  <div style={{ background: 'var(--semi-color-bg-0)'}}>
     <TreeSelect
       searchPosition="trigger"
       style={{ width: 300 }}
@@ -415,7 +540,7 @@ export const SearchPosition = () => (
       maxTagCount={1}
       placeholder="maxTagCount=1"
     />
-  </>
+  </div>
 );
 
 SearchPosition.story = {
@@ -541,6 +666,7 @@ export const Multiple = () => (
       multiple
       placeholder="Please select"
     />
+    <span id={'invisible-span'} style={{ width: 10, height: 10, position: 'fixed', top: 0, right: 0 }} />
   </div>
 );
 
@@ -1319,66 +1445,7 @@ DisabledStrictly.story = {
 
 
 export const CheckRelationDemo = () => {
-  const treeData = [
-    {
-        label: 'Asia',
-        value: 'Asia',
-        key: '0',
-        children: [
-            {
-                label: 'China',
-                value: 'China',
-                key: '0-0',
-                children: [
-                    {
-                        label: 'Beijing',
-                        value: 'Beijing',
-                        key: '0-0-0',
-                    },
-                    {
-                        label: 'Shanghai',
-                        value: 'Shanghai',
-                        key: '0-0-1',
-                    },
-                    {
-                        label: 'Chengdu',
-                        value: 'Chengdu',
-                        key: '0-0-2',
-                    },
-                ],
-            },
-            {
-                label: 'Japan',
-                value: 'Japan',
-                key: '0-1',
-                children: [
-                    {
-                        label: 'Osaka',
-                        value: 'Osaka',
-                        key: '0-1-0'
-                    }
-                ]
-            },
-        ],
-    },
-    {
-        label: 'North America',
-        value: 'North America',
-        key: '1',
-        children: [
-            {
-                label: 'United States',
-                value: 'United States',
-                key: '1-0'
-            },
-            {
-                label: 'Canada',
-                value: 'Canada',
-                key: '1-1'
-            }
-        ]
-    }
-  ];
+  const treeData = treeDataEn;
   const [value, setValue] = useState('China');
   const [value2, setValue2] = useState();
   const [value3, setValue3] = useState();
@@ -2220,9 +2287,17 @@ export const triggerRenderAddMethod = () => {
     <>
       <TreeSelect
           triggerRender={renderTrigger1}
+          treeData={treeData}
+          placeholder='Single, Custom Trigger'
+          onChange={onValueChange}
+          style={{ width: 300 }}
+      />
+      <br />
+      <TreeSelect
+          triggerRender={renderTrigger1}
           multiple
           treeData={treeData}
-          placeholder='Custom Trigger'
+          placeholder='Multiple, custom Trigger'
           onChange={onValueChange}
           style={{ width: 300 }}
       />
@@ -2239,12 +2314,26 @@ export const triggerRenderAddMethod = () => {
       />
       <br />
       <TreeSelect
+          defaultExpandAll
           triggerRender={renderTrigger3}
           filterTreeNode
           searchPosition="trigger"
           multiple
           treeData={treeData}
           placeholder='Custom Trigger'
+          onChange={onValueChange}
+          style={{ width: 300 }}
+      />
+      <br />
+       <TreeSelect
+          defaultExpandAll
+          checkRelation={'unRelated'} 
+          triggerRender={renderTrigger3}
+          filterTreeNode
+          searchPosition="trigger"
+          multiple
+          treeData={treeData}
+          placeholder='multiple, checkRelation = unRelated'
           onChange={onValueChange}
           style={{ width: 300 }}
       />
@@ -2342,6 +2431,566 @@ export const LongLabel = () => {
         dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
         treeData={treeData}
         placeholder="请选择"
+      />
+    </>
+  );
+}
+
+export const UnRelatedAndAsyncLoad = () => {
+  const initialData = [
+      {
+          label: 'Expand to load0',
+          value: '0',
+          key: '0',
+      },
+      {
+          label: 'Expand to load1',
+          value: '1',
+          key: '1',
+      },
+      {
+          label: 'Leaf Node',
+          value: '2',
+          key: '2',
+          isLeaf: true,
+      },
+  ];
+  const [treeData, setTreeData] = useState(initialData);
+
+  function updateTreeData(list, key, children) {
+      return list.map(node => {
+          if (node.key === key) {
+              return { ...node, children };
+          }
+          if (node.children) {
+              return { ...node, children: updateTreeData(node.children, key, children) };
+          }
+          return node;
+      });
+  }
+
+  function onLoadData({ key, children }) {
+      return new Promise(resolve => {
+          if (children) {
+              resolve();
+              return;
+          }
+          setTimeout(() => {
+              setTreeData(origin =>
+                  updateTreeData(origin, key, [
+                      {
+                          label: `Child Node${key}-0`,
+                          key: `${key}-0`,
+                      },
+                      {
+                          label: `Child Node${key}-1`,
+                          key: `${key}-1`,
+                      },
+                  ]),
+              );
+              resolve();
+          }, 1000);
+      });
+  }
+  return (
+    <>
+      <span>issue 1852: checkRelation='unRelated', 异步加载数据</span>
+      <TreeSelect
+        checkRelation='unRelated'
+        defaultValue={['0']}
+        multiple
+        defaultOpen
+        loadData={onLoadData}
+        treeData={[...treeData]}
+      />
+    </>
+  );
+};
+
+const constructLargeData = () => {
+  const newArray = (new Array(10)).fill(0).map((item, m) => {
+    const parent = {
+      key: `key-${m}`,
+      label: `node-${m}`,
+      children: []
+    }
+    new Array(100).fill(0).map((item, n) => {
+      const children = {
+        key: `key-${m}-${n}`,
+        label: `value-${m}-${n}`,
+        children: []
+      }
+      new Array(10).fill(0).map((item, o) => {
+        const grandChildren = {
+          key: `key-${m}-${n}-${o}`,
+          label: `value-${m}-${n}-${o}`,
+        }
+        children.children.push(grandChildren);
+      });
+      parent.children.push(children);
+    });
+    return parent;
+  });
+  return newArray;
+}
+
+export const ChangeTreeData = () => {
+  const [sign, setSign] = useState(true);
+
+  const treeData1 = useMemo(() => {
+    return constructLargeData();
+  }, []);
+
+  const treeData2 =  useMemo(() => {
+    return constructLargeData();
+  }, []);
+
+  const onButtonClick = useCallback(() => {
+    setSign((sign) => {
+      return !sign;
+    })
+  }, []);
+
+  return <>
+    <Button onClick={onButtonClick}>点击修改TreeData</Button>
+    <br/><br/>
+    <TreeSelect
+        treeData={sign ? treeData1 : treeData2}
+        style={{ width: 300 }}
+        dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+        placeholder="请选择"
+    />
+  </>
+}
+
+export const KeyMaps = () => {
+  const [withObject, setWithObject] = useState(false);
+  const [value1, setValue1] = useState(undefined);
+  const [value2, setValue2] = useState(undefined);
+  const [expandKeys, setExpandedKeys] = useState(["yazhou", 'zhongguo']);
+  
+  const switchChange = useCallback((checked) => {
+    setWithObject(checked);
+    setValue1(undefined);
+    setValue2(undefined);
+  }, []);
+
+  const onSingleChange = useCallback((value) => {
+    console.log('onSingleChange', value);
+    setValue1(value);
+  }, []);
+
+  const onMultipleChange = useCallback((value) => {
+    console.log('onMultipleChange', value);
+    setValue2(value);
+  }, []);
+
+  const normalChange = useCallback((value) => {
+    console.log('onChange', value);
+  }, []);
+
+  const normalExpand = useCallback((expandedKeys, {expanded, node}) => {
+    console.log('onExpanded', expandedKeys, expanded, copy(node));
+  }, []);
+
+  const keyMaps = useMemo(() => {
+    return {
+      // value: 'value1',
+      key: 'key1',
+      label: 'label1',
+      children: 'children1',
+      disabled: 'disabled1'
+    };
+  }, []);
+
+  const regularTreeProps = useMemo(() => ({
+    keyMaps: keyMaps,
+    treeData: specialTreeData,
+    style: { width: 300 },
+    dropdownStyle: { maxHeight: 400, overflow: 'auto' },
+    onChange: normalChange,
+    onExpand: normalExpand,
+    onChangeWithObject: withObject,
+  }), [withObject]);
+
+  const defaultSelectedObj = {
+    label1: '北京',
+    // value1: 'Beijing',
+    key1: 'beijing',
+  };
+
+  return (
+    <>
+      <span>onChangeWithObject</span><Switch checked={withObject} onChange={switchChange} />
+      <div key={String(withObject)} style={{ marginTop: 10 }}>
+        <div> Single select</div>
+        <TreeSelect
+          {...regularTreeProps}
+          defaultValue={withObject ? defaultSelectedObj : 'beijing'}
+        />
+        <div> Single select, onSearch, filterTreeNode, treeNodeFilterProp</div>
+        <TreeSelect
+          {...regularTreeProps}
+          filterTreeNode={(inputValue, treeNodeString, data)=> {
+            console.log("filterTreeNode", inputValue, treeNodeString, data);
+            return treeNodeString.includes(inputValue);
+          }}
+          treeNodeFilterProp={"key1"}
+          onSearch={(input, filteredExpandedKeys) => {
+            console.log('onSearch', input, filteredExpandedKeys);
+          }}
+        />
+        <div>Single select, controlled</div>
+        <TreeSelect  
+          {...regularTreeProps}
+          value={value1}
+          onChange={onSingleChange}
+        />
+        <div> Multiple select</div>
+        <TreeSelect
+          {...regularTreeProps}
+          multiple
+          defaultValue={withObject ? [defaultSelectedObj] : ['beijing']}
+        />
+        <div> Multiple select, controlled</div>
+        <TreeSelect
+          {...regularTreeProps}
+          value={value2}
+          multiple
+          onChange={onMultipleChange}
+        />
+        <div> Multiple select, disableStrictly</div>
+        <TreeSelect
+          {...regularTreeProps}
+          multiple
+          disableStrictly
+        />
+        <div> Multiple, 展开受控</div>
+        <TreeSelect
+          {...regularTreeProps}
+          multiple
+          expandedKeys={expandKeys}
+          onExpand={(expandedKeys, {expanded, node}) => {
+            console.log('onExpanded', expandedKeys, expanded, copy(node));
+            setExpandedKeys(expandedKeys);
+          }}
+        />
+      </div>
+    </> 
+  );
+}
+
+export const Issue1542 = () => {
+  const [expandedKeys, setExpandedKeys] = useState([]);
+  const treeData = treeDataEn;
+  const onExpand = useCallback((expandedKeys) => {
+    setExpandedKeys(expandedKeys);
+  }, [expandedKeys]);
+
+  const onSearch = useCallback((inputValue, filteredExpandedKeys) => {
+    const set = new Set([...filteredExpandedKeys, ...expandedKeys]);
+    setExpandedKeys(Array.from(set));
+  }, [setExpandedKeys]);
+
+  return (
+    <>
+      <TreeSelect
+          // multiple
+          style={{ width: 300 }}
+          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+          treeData={treeData}
+          filterTreeNode
+          searchPosition='trigger'
+          showFilteredOnly
+          expandedKeys={expandedKeys}
+          onExpand={onExpand}
+          onSearch={onSearch}
+      />
+    </>  
+  );
+};
+
+class WebComponentWrapper extends HTMLElement {
+  constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+  }
+
+  connectedCallback() {
+      ReactDOM.render(<_TreeSelect />, this.shadowRoot);
+  }
+}
+
+customElements.define('my-web-component', WebComponentWrapper);
+
+export const WebCompTestOutside = () => {
+
+  return (
+    <my-web-component></my-web-component>
+  );
+};
+
+export const CustomSelectAll = () => {
+  const [value, setValue] = useState([]);
+  const [filteredNodes, setFilteredNodes] = useState([])
+  const treeData = treeDataEn;
+  const onSearch = useCallback((inputValue, filteredExpandedKeys, _filteredNodes) => {
+    setFilteredNodes(_filteredNodes)
+  }, []);
+
+  const handleOnChange = useCallback((value) => {
+    setValue(value);
+  }, [])
+
+  // 是否全选
+  const allSelected = useMemo(() => {
+    if (!filteredNodes.length) {
+      return false;
+    }
+    const optionValues = filteredNodes.map(i => i.value);
+    return !without(optionValues, ...value).length;
+  }, [filteredNodes, value]);
+
+  const handleOnAllSelect = useCallback(() => {
+    const optionValues = filteredNodes.map(i => i.value);
+    handleOnChange(allSelected ? [] : optionValues);
+  }, [allSelected, handleOnChange, filteredNodes]);
+ 
+  const outerBottomSlot = useMemo(() => {
+    if (!filteredNodes.length) {
+      // 未筛选状态下不展示按钮
+      return null;
+    }
+    return (
+        <div style={{ padding: '5px 20px', borderTop: '1px solid var(--semi-color-border)'}}>
+          <Typography.Text link={true} onClick={handleOnAllSelect}>
+            {allSelected ? '取消全选' : '全选'}
+          </Typography.Text>
+        </div> 
+    );
+  }, [allSelected, handleOnAllSelect, filteredNodes]);
+
+  return (
+    <>
+      <span>本用例借助 onSearch 的第三个参数_filteredNodes 自定义搜索全选功能 </span>
+      <br />
+      <TreeSelect
+          multiple
+          style={{ width: 300 }}
+          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+          treeData={treeData}
+          filterTreeNode
+          searchPosition='trigger'
+          showFilteredOnly
+          onSearch={onSearch}
+          onChange={handleOnChange}
+          value={value}
+          showClear
+          outerBottomSlot={outerBottomSlot}
+      />
+    </>  
+  );
+};
+
+export const AutoMerge = () => {
+  const [value, setValue] = useState([]);
+
+  const onChange = useCallback((val) => {
+    console.log('onChange', val);
+    setValue(val);
+  }, []);
+
+  return (
+    <>
+      <TreeSelect
+        autoMergeValue={false}
+        style={{ width: 300}}
+        multiple
+        value={value}
+        onChange={onChange}
+        treeData={treeData1}
+      />
+    </>
+  )
+}
+
+export const showFilteredOnly = () => {
+  return (
+      <>
+          <span id='info'>searchPosition="trigger", showFilteredOnly, multiple</span>
+          <br />
+          <TreeSelect
+              searchPosition="trigger"
+              style={{ width: 300 }}
+              dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+              treeData={treeData2}
+              multiple
+              filterTreeNode
+              showFilteredOnly
+              maxTagCount={2}
+              placeholder="多选"
+          />
+      </>
+  );
+}
+
+export const EmptyContent = () => {
+  const treeData = [
+    {
+        label: '亚洲',
+        value: 'Asia',
+        key: '0',
+        children: [
+            {
+                label: '中国',
+                value: 'China',
+                key: '0-0',
+                children: [
+                    {
+                        label: '北京',
+                        value: 'Beijing',
+                        key: '0-0-0',
+                    },
+                    {
+                        label: '上海',
+                        value: 'Shanghai',
+                        key: '0-0-1',
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        label: '北美洲',
+        value: 'North America',
+        key: '1',
+    }
+  ];
+  return ( 
+      <>
+        <TreeSelect
+          style={{ width: 400 }}
+          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+          treeData={[]}
+          placeholder="点击 trigger 查看 emptyContent 为 null 效果"
+          emptyContent={null}
+        />
+        <br /><br />
+        <TreeSelect
+          style={{ width: 400 }}
+          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+          treeData={treeData}
+          placeholder="输入 v 查看 emptyContent 为 null 效果"
+          filterTreeNode
+          showFilteredOnly
+          searchPosition={"trigger"}
+          emptyContent={null}
+        />
+      </>
+  );
+}
+
+export const filterAndKeyMaps = () => {
+  const treeData = [
+    {
+        name: 'Asia',
+        value: 'Asia',
+        key: '0',
+        children: [
+            {
+                name: 'China',
+                value: 'China',
+                key: '0-0',
+                children: [
+                    {
+                        name: 'Beijing',
+                        value: 'Beijing',
+                        key: '0-0-0',
+                    },
+                    {
+                        name: 'Shanghai',
+                        value: 'Shanghai',
+                        key: '0-0-1',
+                    },
+                ],
+            },
+            {
+                name: 'Japan',
+                value: 'Japan',
+                key: '0-1',
+                children: [
+                    {
+                        name: 'Osaka',
+                        value: 'Osaka',
+                        key: '0-1-0'
+                    }
+                ]
+            },
+        ],
+    },
+    {
+        name: 'North America',
+        value: 'North America',
+        key: '1',
+        children: [
+            {
+                name: 'United States',
+                value: 'United States',
+                key: '1-0'
+            },
+            {
+                name: 'Canada',
+                value: 'Canada',
+                key: '1-1'
+            }
+          ]
+      }
+  ];
+  return (
+    <TreeSelect
+      style={{ width: 300 }}
+      dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+      treeData={treeData}
+      filterTreeNode
+      keyMaps={{
+        key: 'key',
+        value: 'value',
+        label: 'name',
+      }}
+      placeholder="单选可搜索的"
+    />
+  )
+}
+
+export const CustomExpandIcon = () => {
+  const expandIconFunc = useCallback((props) => {
+    const { expanded, onClick, className } = props;
+    if (expanded) {
+      return <IconMinus size="small" className={className} onClick={onClick}/>
+    } else {
+      return <IconPlus size="small" className={className} onClick={onClick}/>
+    }
+  });
+
+  return (
+    <>
+      <p>expandIcon 是 ReactNode</p>
+      <TreeSelect
+        style={{ width: 300}}
+        expandIcon={<IconChevronDown size="small" className='testCls'/>}
+        multiple
+        defaultExpandedKeys={['yazhou']}
+        treeData={treeData2}
+      />
+      <br />
+      <br />
+      <p>expandIcon 是函数</p>
+      <TreeSelect
+        style={{ width: 300}}
+        multiple
+        expandIcon={expandIconFunc}
+        defaultExpandedKeys={['yazhou']}
+        treeData={treeData2}
       />
     </>
   );

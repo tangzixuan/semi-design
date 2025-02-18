@@ -4,7 +4,7 @@ import YearAndMonthFoundation, { MonthScrollItem, YearAndMonthAdapter, YearAndMo
 import BaseComponent, { BaseProps } from '../_base/baseComponent';
 import ScrollList from '../scrollList/index';
 import ScrollItem from '../scrollList/scrollItem';
-import { getYears } from '@douyinfe/semi-foundation/datePicker/_utils/index';
+import { getYearAndMonth, getYears } from '@douyinfe/semi-foundation/datePicker/_utils/index';
 
 import IconButton from '../iconButton';
 import { IconChevronLeft } from '@douyinfe/semi-icons';
@@ -63,11 +63,7 @@ class YearAndMonth extends BaseComponent<YearAndMonthProps, YearAndMonthState> {
 
         let { currentYear, currentMonth } = props;
 
-        const currentLeftYear = currentYear.left || now.getFullYear();
-        const currentLeftMonth = currentMonth.left || now.getMonth() + 1;
-
-        currentYear = { left: currentLeftYear, right: currentLeftYear };
-        currentMonth = { left: currentLeftMonth, right: currentMonth.right || currentLeftMonth + 1 };
+        const { year, month } = getYearAndMonth(currentYear, currentMonth);
 
         this.state = {
             years: getYears(props.startYear, props.endYear).map(year => ({
@@ -80,8 +76,8 @@ class YearAndMonth extends BaseComponent<YearAndMonthProps, YearAndMonthState> {
                     value: idx + 1,
                     month: idx + 1,
                 })),
-            currentYear,
-            currentMonth,
+            currentYear: year,
+            currentMonth: month,
         };
 
         this.yearRef = React.createRef();
@@ -118,13 +114,14 @@ class YearAndMonth extends BaseComponent<YearAndMonthProps, YearAndMonthState> {
 
     static getDerivedStateFromProps(props: YearAndMonthProps, state: YearAndMonthState) {
         const willUpdateStates: Partial<YearAndMonthState> = {};
+        const { year, month } = getYearAndMonth(props.currentYear, props.currentMonth);
 
-        if (!isEqual(props.currentYear, state.currentYear) && props.currentYear.left !== 0) {
-            willUpdateStates.currentYear = props.currentYear;
+        if (!isEqual(props.currentYear, state.currentYear)) {
+            willUpdateStates.currentYear = year;
         }
 
-        if (!isEqual(props.currentMonth, state.currentMonth) && props.currentMonth.left !== 0) {
-            willUpdateStates.currentMonth = props.currentMonth;
+        if (!isEqual(props.currentMonth, state.currentMonth)) {
+            willUpdateStates.currentMonth = month;
         }
 
         return willUpdateStates;
@@ -139,11 +136,7 @@ class YearAndMonth extends BaseComponent<YearAndMonthProps, YearAndMonthState> {
 
         const needDisabled = (year) => {
             if (panelType === right && currentYear[left]) {
-                if (currentMonth[left] <= currentMonth[right]) {
-                    return currentYear[left] > year;
-                } else {
-                    return currentYear[left] >= year;
-                }
+                return currentYear[left] > year;
             }
             return false;
         };

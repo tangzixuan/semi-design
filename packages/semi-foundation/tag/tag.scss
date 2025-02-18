@@ -51,6 +51,16 @@ $types: "ghost", "solid", "light";
         display: none;
     }
 
+    &-prefix-icon {
+        display: flex;
+        padding-right: $spacing-tag_prefix_icon_paddingRight;
+    }
+
+    &-suffix-icon {
+        display: flex;
+        padding-left: $spacing-tag_suffix_icon_paddingLeft;
+    }
+
     &-content {
         flex: 1;
 
@@ -149,13 +159,12 @@ $types: "ghost", "solid", "light";
 
 .#{$module}-group {
     display: block;
+    height: auto;
 
     .#{$module} {
         margin-bottom: $spacing-tag_group-marginBottom;
         margin-right: $spacing-tag_group-marginRight;
     }
-
-    height: auto;
 
     &-max.#{$module}-group-small {
         height: ($height-tag_small + 2);
